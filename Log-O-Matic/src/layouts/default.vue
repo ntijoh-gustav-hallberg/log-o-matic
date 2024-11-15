@@ -11,13 +11,13 @@
       </v-btn>
       <v-btn v-if="userStore.token">
         <v-icon  icon="mdi-list-box"/>
-        Log
+        Logs
       </v-btn>
       <v-btn v-if="!userStore.token" @click="LoginMenu()">
         <v-icon  icon="mdi-lock"/>
         logga in
       </v-btn>
-      <v-btn v-if="userStore.token">
+      <v-btn v-if="userStore.token" @click="Logout()">
         <v-icon  icon="mdi-lock-open"/>
         logga ut
       </v-btn>
@@ -44,5 +44,10 @@ import useUserStore from '@/stores/userStore';
   }
   function LoginMenu(){
     router.push('/loginPage')
+  }
+  function Logout(){
+    userStore.token = '';
+    userStore.teacher = false;
+    router.push('/')
   }
 </script>
