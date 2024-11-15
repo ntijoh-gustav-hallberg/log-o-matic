@@ -38,6 +38,7 @@ const studentStore = useStudentStore();
             virtualStudents () {
                 return [...Array(this.students.length).keys()].map(i => {
                     const student = { ...this.students[i % this.students.length] }
+                    student.teacher = student.teacher || '';
                     return student
                 })
             },
@@ -144,6 +145,7 @@ const studentStore = useStudentStore();
                 <v-select
                 label="Teacher"
                 :items="teacherNames"
+                v-model="item.teacher"
                 variant="underlined"
                 ></v-select>
         </template>
