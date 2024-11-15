@@ -7,6 +7,8 @@ interface IStudent {
     password: string
 }
 
+// TODO, teacher might not update
+
 const studentList: IStudent[] = [
     {
         email: "emma.svensson@ga.elev.ntig.se",
