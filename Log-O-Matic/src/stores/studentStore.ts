@@ -68,22 +68,19 @@ export const useStudentStore = defineStore("studentStore", {
         removeStudent(email: string) {
             this.students = this.students.filter((student) => student.email !== email);
         },
-        updateStudent(email: string, updatedData: Partial<IStudent>) {
-            const studentIndex = this.students.findIndex(
-            (student) => student.email === email);
-
-            if (studentIndex !== -1) {
-                this.students[studentIndex] = {
-                    ...this.students[studentIndex],
-                    ...updatedData,
-                };
-            }
-        },
         resetPassword(email: string, password: string) {
             const studentIndex = this.students.findIndex(
                 (student) => student.email === email);
             if (studentIndex !== -1) {
                 this.students[studentIndex].password = password;
+            }
+        },
+        updateStudentTeacher(email: string, teacher: string) {
+            const studentIndex = this.students.findIndex(
+                (student) => student.email === email);
+            
+            if(studentIndex !== -1) {
+                this.students[studentIndex].teacher = teacher;
             }
         }
     },

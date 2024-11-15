@@ -25,6 +25,7 @@ const studentStore = useStudentStore();
 
                 ],
                 students: studentStore.getAll,
+                studentTeacher: "",
             }
         },
   
