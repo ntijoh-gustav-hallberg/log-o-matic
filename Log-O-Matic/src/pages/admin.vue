@@ -1,5 +1,6 @@
 <script>
-import {useTeacherStore, useStudentStore} from "../stores/app.ts"
+import {useTeacherStore} from "../stores/teacherStore.ts"
+import {useStudentStore} from "../stores/studentStore.ts"
 
 const teacherStore = useTeacherStore();
 const studentStore = useStudentStore();
