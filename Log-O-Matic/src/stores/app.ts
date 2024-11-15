@@ -13,6 +13,13 @@ interface ITeacher {
   password: string
 }
 
+interface IStudent {
+  email: string,
+  name: string,
+  teacher: string,
+  password: string
+}
+
 const teacherList: ITeacher[] = [
   {
     email: "daniel.berg@ga.ntig.se",
@@ -33,6 +40,45 @@ const teacherList: ITeacher[] = [
     email: "ola.lindberg@ga.ntig.se",
     name: "Ola Lindberg",
     password: "",
+  },
+]
+
+const studentList: IStudent[] = [
+  {
+      email: "emma.svensson@ga.elev.ntig.se",
+      name: "Emma Svensson",
+      teacher: "Linus Styren",
+      password: "",
+  },
+  {
+      email: "alex.johansson@ga.elev.ntig.se",
+      name: "Alex Johansson",
+      teacher: "Linus Styren",
+      password: "",
+  },
+  {
+      email: "maria.karlsson@ga.elev.ntig.se",
+      name: "Maria Karlsson",
+      teacher: "Daniel Berg",
+      password: "",
+  },
+  {
+      email: "erik.nilsson@ga.elev.ntig.se",
+      name: "Erik Nilsson",
+      teacher: "Fredrik Kronhamn",
+      password: "",
+  },
+  {
+      email: "sara.andersson@ga.elev.ntig.se",
+      name: "Sara Andersson",
+      teacher: "Ola Lindberg",
+      password: "",
+  },
+  {
+      email: "lisa.persson@ga.elev.ntig.se",
+      name: "Lisa Persson",
+      teacher: "Ola Lindberg",
+      password: "",
   },
 ]
 
@@ -74,52 +120,6 @@ export const useTeacherStore = defineStore("teacherStore", {
     },
   },
 });
-
-interface IStudent {
-  email: string,
-  name: string,
-  teacher: string,
-  password: string
-}
-
-const studentList: IStudent[] = [
-  {
-      email: "emma.svensson@ga.elev.ntig.se",
-      name: "Emma Svensson",
-      teacher: "Linus Styren",
-      password: "",
-  },
-  {
-      email: "alex.johansson@ga.elev.ntig.se",
-      name: "Alex Johansson",
-      teacher: "Linus Styren",
-      password: "",
-  },
-  {
-      email: "maria.karlsson@ga.elev.ntig.se",
-      name: "Maria Karlsson",
-      teacher: "Daniel Berg",
-      password: "",
-  },
-  {
-      email: "erik.nilsson@ga.elev.ntig.se",
-      name: "Erik Nilsson",
-      teacher: "Fredrik Kronhamn",
-      password: "",
-  },
-  {
-      email: "sara.andersson@ga.elev.ntig.se",
-      name: "Sara Andersson",
-      teacher: "Ola Lindberg",
-      password: "",
-  },
-  {
-      email: "lisa.persson@ga.elev.ntig.se",
-      name: "Lisa Persson",
-      teacher: "Ola Lindberg",
-      password: "",
-  },
-]
 
 export const useStudentStore = defineStore("studentStore", {
   // State
