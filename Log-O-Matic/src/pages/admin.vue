@@ -64,7 +64,15 @@ const studentStore = useStudentStore();
                 }
 
                 teacherStore.addTeacher(teacher);
-            }
+            },
+
+            resetPassword(data, isTeacher) {
+                if(isTeacher) {
+                    teacherStore.resetPassword(data.email, data.password)
+                } else {
+                    studentStore.resetPassword(data.email, data.password)
+                }
+            },
         },
 
         setup() {
@@ -98,7 +106,7 @@ const studentStore = useStudentStore();
                 ></v-text-field>
 
                 <!-- Button -->
-                <v-btn color="blue" rounded="2">
+                <v-btn color="blue" rounded="2" @click="resetPassword(item, true)">
                 Reset
                 </v-btn>
             </div>
@@ -139,7 +147,6 @@ const studentStore = useStudentStore();
                 >
                 <v-text-field
                     v-model="teacherPassword"
-                    :rules="passwordRules"
                     label="Password"
                     variant="underlined"
                     required
@@ -185,7 +192,7 @@ const studentStore = useStudentStore();
                 ></v-text-field>
 
                 <!-- Button -->
-                <v-btn color="blue" rounded="2">
+                <v-btn color="blue" rounded="2" @click="resetPassword(item, true)">
                 Reset
                 </v-btn>
             </div>
@@ -238,7 +245,6 @@ const studentStore = useStudentStore();
                 >
                 <v-text-field
                     v-model="studentPassword"
-                    :rules="passwordRules"
                     label="Password"
                     variant="underlined"
                     required

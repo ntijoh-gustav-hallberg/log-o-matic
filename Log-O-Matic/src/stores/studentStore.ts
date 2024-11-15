@@ -53,32 +53,39 @@ export const useStudentStore = defineStore("studentStore", {
   
     // Getters
     getters: {
-      getAll: (state) => {
-        return state.students;
-      },
-      getStudentByEmail: (state) => (email: string) => {
-        return state.students.find((student) => student.email === email);
-      },
+        getAll: (state) => {
+            return state.students;
+        },
+        getStudentByEmail: (state) => (email: string) => {
+            return state.students.find((student) => student.email === email);
+        },
     },
   
     actions: {
-      addStudent(student: IStudent) {
-        this.students.push(student);
-      },
-      removeStudent(email: string) {
-        this.students = this.students.filter((student) => student.email !== email);
-      },
-      updateStudent(email: string, updatedData: Partial<IStudent>) {
-        const studentIndex = this.students.findIndex(
-          (student) => student.email === email
-        );
-        if (studentIndex !== -1) {
-          this.students[studentIndex] = {
-            ...this.students[studentIndex],
-            ...updatedData,
-          };
+        addStudent(student: IStudent) {
+            this.students.push(student);
+        },
+        removeStudent(email: string) {
+            this.students = this.students.filter((student) => student.email !== email);
+        },
+        updateStudent(email: string, updatedData: Partial<IStudent>) {
+            const studentIndex = this.students.findIndex(
+            (student) => student.email === email);
+
+            if (studentIndex !== -1) {
+                this.students[studentIndex] = {
+                    ...this.students[studentIndex],
+                    ...updatedData,
+                };
+            }
+        },
+        resetPassword(email: string, password: string) {
+            const studentIndex = this.students.findIndex(
+                (student) => student.email === email);
+            if (studentIndex !== -1) {
+                this.students[studentIndex].password = password;
+            }
         }
-      },
     },
 });
   

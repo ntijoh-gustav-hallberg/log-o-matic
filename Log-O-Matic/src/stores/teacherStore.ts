@@ -10,7 +10,7 @@ const teacherList: ITeacher[] = [
     {
       email: "daniel.berg@ga.ntig.se",
       name: "Daniel Berg",
-      password: "",
+      password: "test",
     },
     {
       email: "linus.styren@ga.ntig.se",
@@ -36,34 +36,41 @@ export const useTeacherStore = defineStore("teacherStore", {
   
     // Getters
     getters: {
-      getAll: (state) => {
-        return state.teachers;
-      },
-      getTeacherByEmail: (state) => (email: string) => {
-        return state.teachers.find((teacher) => teacher.email === email);
-      },
-      teacherCount: (state) => {
-        return state.teachers.length;
-      },
+        getAll: (state) => {
+            return state.teachers;
+        },
+        getTeacherByEmail: (state) => (email: string) => {
+            return state.teachers.find((teacher) => teacher.email === email);
+        },
+        teacherCount: (state) => {
+            return state.teachers.length;
+        },
     },
   
     actions: {
-      addTeacher(teacher: ITeacher) {
-        this.teachers.push(teacher);
-      },
-      removeTeacher(email: string) {
-        this.teachers = this.teachers.filter((teacher) => teacher.email !== email);
-      },
-      updateTeacher(email: string, updatedData: Partial<ITeacher>) {
-        const teacherIndex = this.teachers.findIndex(
-          (teacher) => teacher.email === email
-        );
-        if (teacherIndex !== -1) {
-          this.teachers[teacherIndex] = {
-            ...this.teachers[teacherIndex],
-            ...updatedData,
-          };
+        addTeacher(teacher: ITeacher) {
+            this.teachers.push(teacher);
+        },
+        removeTeacher(email: string) {
+            this.teachers = this.teachers.filter((teacher) => teacher.email !== email);
+        },
+        updateTeacher(email: string, updatedData: Partial<ITeacher>) {
+            const teacherIndex = this.teachers.findIndex(
+                (teacher) => teacher.email === email);
+
+            if (teacherIndex !== -1) {
+                this.teachers[teacherIndex] = {
+                    ...this.teachers[teacherIndex],
+                    ...updatedData,
+                };
+            }
+        },
+        resetPassword(email: string, password: string) {
+            const teacherIndex = this.teachers.findIndex(
+                (teacher) => teacher.email === email);
+            if (teacherIndex !== -1) {
+                this.teachers[teacherIndex].password = password;
+            }
         }
-      },
     },
 });
