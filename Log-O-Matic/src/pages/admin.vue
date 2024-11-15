@@ -4,7 +4,7 @@ import {useTeacherStore, useStudentStore} from "../stores/app.ts"
 const teacherStore = useTeacherStore();
 const studentStore = useStudentStore();
 
-// For teacher table
+// For tables
     export default {
         data () {
             return {
@@ -42,6 +42,28 @@ const studentStore = useStudentStore();
                     return student
                 })
             },
+        },
+        methods: {
+            addStudent() {
+                const student = {
+                    email: this.studentEmail,
+                    name: this.studentName,
+                    teacher: this.studentTeacher,
+                    password: this.studentPassword
+                }
+
+                studentStore.addStudent(student);
+            },
+
+            addTeacher() {
+                const teacher = {
+                    email: this.teacherEmail,
+                    name: this.teacherName,
+                    password: this.teacherPassword
+                }
+
+                teacherStore.addTeacher(teacher);
+            }
         },
 
         setup() {
@@ -91,7 +113,7 @@ const studentStore = useStudentStore();
                 md="4"
                 >
                 <v-text-field
-                    v-model="email"
+                    v-model="teacherEmail"
                     label="Email"
                     variant="underlined"
                     required
@@ -103,7 +125,7 @@ const studentStore = useStudentStore();
                 md="4"
                 >
                 <v-text-field
-                    v-model="name"
+                    v-model="teacherName"
                     label="Name"
                     variant="underlined"
                     required
@@ -115,7 +137,7 @@ const studentStore = useStudentStore();
                 md="4"
                 >
                 <v-text-field
-                    v-model="password"
+                    v-model="teacherPassword"
                     :rules="passwordRules"
                     label="Password"
                     variant="underlined"
@@ -126,7 +148,7 @@ const studentStore = useStudentStore();
             </v-row>
             <v-row>
                 <v-spacer></v-spacer>
-                <v-btn color="green" rounded="2" class="mb-2">
+                <v-btn color="green" rounded="2" class="mb-2" @click="addTeacher">
                 Create
                 </v-btn>
             </v-row>
@@ -178,7 +200,7 @@ const studentStore = useStudentStore();
                 md="4"
                 >
                 <v-text-field
-                    v-model="email"
+                    v-model="studentEmail"
                     label="Email"
                     variant="underlined"
                     required
@@ -190,7 +212,7 @@ const studentStore = useStudentStore();
                 md="4"
                 >
                 <v-text-field
-                    v-model="name"
+                    v-model="studentName"
                     label="Name"
                     variant="underlined"
                     required
@@ -202,6 +224,7 @@ const studentStore = useStudentStore();
                 md="4"
                 >
                 <v-select
+                v-model="studentTeacher"
                 label="Teacher"
                 :items="teacherNames"
                 variant="underlined"
@@ -213,7 +236,7 @@ const studentStore = useStudentStore();
                 md="4"
                 >
                 <v-text-field
-                    v-model="password"
+                    v-model="studentPassword"
                     :rules="passwordRules"
                     label="Password"
                     variant="underlined"
@@ -224,7 +247,7 @@ const studentStore = useStudentStore();
             </v-row>
             <v-row>
                 <v-spacer></v-spacer>
-                <v-btn color="green" rounded="2" class="mb-2">
+                <v-btn color="green" rounded="2" class="mb-2" @click="addStudent">
                 Create
                 </v-btn>
             </v-row>
