@@ -4,7 +4,7 @@ require 'time'
 require 'jwt'
 require 'debug'
 
-MY_SECRET_SIGNING_KEY = "your-256-bit-secret"
+MY_SECRET_SIGNING_KEY = "THISISASUPERSECRET"
 
 class QotdApi < Sinatra::Base
 
@@ -51,6 +51,33 @@ class QotdApi < Sinatra::Base
     response.headers["Access-Control-Allow-Origin"] = "*"
     response.headers["Access-Control-Expose-Headers"] = "Location, Link"
     200
+  end
+
+  # Gets all students
+  get '/admin/students' do
+    @db.execute('SELECT u.*, t.name AS teacher_name FROM users u LEFT JOIN users t ON u.teacherId = t.userId WHERE u.isTeacher = ?', 0).to_json
+  end
+
+  get '/admin/student/:id' do
+    p "Getting user: #{id}"
+
+    @db.execute('SELECT * FROM users WHERE id = ? LIMIT 1', params['id']).first.to_json
+  end
+
+  post '/admin/addStudent' do
+    user_data = JSON.parse(request.body.read)
+    user = @db.execute('INSERT INTO users (email, name, password, teacherId, isTeacher) VALUES (?, ?, ?, ?, ?)', [user_data['email'], user_data['name'], BCrypt::Password.new(user_data['password']), user_data['teacherId'], 0])
+  end
+
+  # Gets all teachers
+  get '/admin/teacher' do
+    @db.execute('SELECT * FROM users WHERE isTeacher = ?', 1).to_json
+  end
+
+  get '/admin/teacher/:id' do
+    p "Getting user: #{id}"
+    
+    @db.execute('SELECT * FROM users WHERE id = ? LIMIT 1', params['id']).first.to_json
   end
 
   get '/api/v1/qotd' do

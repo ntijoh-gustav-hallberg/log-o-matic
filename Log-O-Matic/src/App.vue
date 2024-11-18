@@ -7,5 +7,8 @@
 </template>
 
 <script lang="ts" setup>
-  //
+  import {useStudentStore} from "./stores/studentStore";
+  const studentStore = useStudentStore();
+
+  studentStore.ensureStudentsLoaded()
 </script>

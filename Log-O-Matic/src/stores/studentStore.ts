@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { API_BASE_URL } from '../../config';
 
 interface IStudent {
     email: string,
@@ -7,50 +8,11 @@ interface IStudent {
     password: string
 }
 
-// TODO, teacher might not update
-
-const studentList: IStudent[] = [
-    {
-        email: "emma.svensson@ga.elev.ntig.se",
-        name: "Emma Svensson",
-        teacher: "Linus Styren",
-        password: "",
-    },
-    {
-        email: "alex.johansson@ga.elev.ntig.se",
-        name: "Alex Johansson",
-        teacher: "Linus Styren",
-        password: "",
-    },
-    {
-        email: "maria.karlsson@ga.elev.ntig.se",
-        name: "Maria Karlsson",
-        teacher: "Daniel Berg",
-        password: "",
-    },
-    {
-        email: "erik.nilsson@ga.elev.ntig.se",
-        name: "Erik Nilsson",
-        teacher: "Fredrik Kronhamn",
-        password: "",
-    },
-    {
-        email: "sara.andersson@ga.elev.ntig.se",
-        name: "Sara Andersson",
-        teacher: "Ola Lindberg",
-        password: "",
-    },
-    {
-        email: "lisa.persson@ga.elev.ntig.se",
-        name: "Lisa Persson",
-        teacher: "Ola Lindberg",
-        password: "",
-    },
-]
-
 export const useStudentStore = defineStore("studentStore", {
     // State
-    state: () => ({ students: studentList as IStudent[]
+    state: () => ({
+        students:[] as IStudent[],
+        isDataFetched: false,
     }),
   
     // Getters
@@ -64,6 +26,42 @@ export const useStudentStore = defineStore("studentStore", {
     },
   
     actions: {
+        // Inside your store
+        async ensureStudentsLoaded() {
+            if (!this.isDataFetched) {
+                await this.fetchStudents();
+            }
+        },
+
+        async fetchStudents() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/students`, {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                if (!response.ok)
+                    throw new Error("Failed to get students")
+
+                const data = await response.json();
+
+                data.forEach(element => {
+                    this.students.push({
+                        email: element.email,
+                        name: element.name,
+                        teacher: element.teacher_name,
+                        password: ""
+                    })
+
+                });
+
+                console.log(JSON.stringify(this.students));
+
+                this.isDataFetched = true;
+            } catch (error) {
+                console.error("Error fetching students: ", error);
+            }
+        },
         addStudent(student: IStudent) {
             this.students.push(student);
         },
