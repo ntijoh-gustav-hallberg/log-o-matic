@@ -30,29 +30,21 @@
 
 
     <v-app>
-    <v-btn @click="incrementNotifications">
+    <v-btn @click="count++">
       <v-badge
         color="red"
-        :content="notificationCount"
+        :content="count"
         overlap
-      >
-        Notifications
-      </v-btn>
+      />
     </v-btn>
   </v-app>
 
   </template>
   
   <script lang="ts" setup>
-  import { Ref } from "vue";
+  import { ref } from "vue";
 
 
-      const notificationCount = ref()
-
-
-    function incrementNotifications() {
-      notificationCount++;
-    }
 
   import { useRoute } from "vue-router";
   
@@ -67,9 +59,6 @@
   { title: "Torsdag", key: 'thursday' },
   { title: "Fredag", key: 'friday' },
 ];
-  
-  // Days of the week for the header
-  const weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
   
   // Students data
   const students = [
@@ -94,6 +83,10 @@
       status: ["unread", "unread", "read", "missing", "read"],
     },
   ];
+
+
+
+  const count = ref(0)
   </script>
   
   <style scoped>
