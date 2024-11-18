@@ -16,6 +16,9 @@ const studentStore = useStudentStore();
 
                 ],
                 teachers: teacherStore.getAll,
+                teacherEmail: "",
+                teacherName: "",
+                teacherPassword: "",
 
                 studentHeaders: [
                     { title: 'email', align: 'start', key: 'email' },
@@ -26,6 +29,9 @@ const studentStore = useStudentStore();
                 ],
                 students: studentStore.getAll,
                 studentTeacher: "",
+                studentEmail: "",
+                studentName: "",
+                studentPassword: "",
             }
         },
   
@@ -47,9 +53,11 @@ const studentStore = useStudentStore();
         },
         methods: {
             addStudent() {
+                console.log(this.studentTeacher)
                 const student = {
                     email: this.studentEmail,
                     name: this.studentName,
+                    teacherId: teacherStore.getTeacherIdByName(this.studentTeacher),
                     teacher: this.studentTeacher,
                     password: this.studentPassword
                 }
@@ -77,11 +85,11 @@ const studentStore = useStudentStore();
         },
 
         setup() {
-            // Get the list of teacher names
-            const teacherNames = computed(() => teacherStore.teachers.map(teacher => teacher.name));
+            const teachersList = computed(() =>
+                teacherStore.teachers.map(teacher => teacher.name));
 
             return {
-                teacherNames,
+                teachersList
             };
         },
     }
@@ -175,7 +183,7 @@ const studentStore = useStudentStore();
                 <!-- Input Field -->
                 <v-select
                 label="Teacher"
-                :items="teacherNames"
+                :items="teachersList"
                 v-model="item.teacher"
                 variant="underlined"
                 ></v-select>
@@ -235,7 +243,7 @@ const studentStore = useStudentStore();
                 <v-select
                 v-model="studentTeacher"
                 label="Teacher"
-                :items="teacherNames"
+                :items="teachersList"
                 variant="underlined"
                 ></v-select>
                 </v-col>

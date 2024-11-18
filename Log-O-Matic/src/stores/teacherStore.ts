@@ -1,37 +1,18 @@
 import { defineStore } from 'pinia'
+import { API_BASE_URL } from '../../config';
 
 interface ITeacher {
+    userId: number,
     email: string,
     name: string,
     password: string
 }
   
-const teacherList: ITeacher[] = [
-    {
-      email: "daniel.berg@ga.ntig.se",
-      name: "Daniel Berg",
-      password: "test",
-    },
-    {
-      email: "linus.styren@ga.ntig.se",
-      name: "Linus Styren",
-      password: "",
-    },
-    {
-      email: "fredrik.kronhamn@ga.ntig.se",
-      name: "Fredrik Kronhamn",
-      password: "",
-    },
-    {
-      email: "ola.lindberg@ga.ntig.se",
-      name: "Ola Lindberg",
-      password: "",
-    },
-]
-  
 export const useTeacherStore = defineStore("teacherStore", {
     // State
-    state: () => ({ teachers: teacherList as ITeacher[]
+    state: () => ({
+        teachers: [] as ITeacher[],
+        isDataFetched: false,
     }),
   
     // Getters
@@ -45,11 +26,62 @@ export const useTeacherStore = defineStore("teacherStore", {
         teacherCount: (state) => {
             return state.teachers.length;
         },
+        getTeacherIdByName: (state) => (name: string) => {
+            return state.teachers.find((teachers) => teachers.name === name)?.userId;
+        },
     },
   
     actions: {
+        async ensureTeachersLoaded() {
+            if (!this.isDataFetched) {
+                await this.fetchTeachers();
+            }
+        },
+
+        async fetchTeachers() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/teachers`, {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                if (!response.ok)
+                    throw new Error("Failed to get teachers")
+
+                const data = await response.json();
+
+                data.forEach(element => {
+                    this.teachers.push({
+                        userId: element.userId,
+                        email: element.email,
+                        name: element.name,
+                        password: ""
+                    })
+
+                });
+
+                this.isDataFetched = true;
+            } catch (error) {
+                console.error("Error fetching teachers: ", error);
+            }
+        },
         addTeacher(teacher: ITeacher) {
-            this.teachers.push(teacher);
+            try {
+                const response = fetch(`${API_BASE_URL}/admin/addTeacher`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(teacher)
+                })
+
+                if(!response)
+                    throw new Error("Failed to add teacher")
+                
+                this.teachers.push(teacher);
+            } catch (error) {
+                console.error("Error adding teacher: ", error);
+            }
         },
         removeTeacher(email: string) {
             this.teachers = this.teachers.filter((teacher) => teacher.email !== email);

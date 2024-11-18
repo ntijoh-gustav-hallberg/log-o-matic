@@ -4,6 +4,7 @@ import { API_BASE_URL } from '../../config';
 interface IStudent {
     email: string,
     name: string,
+    teacherId: number,
     teacher: string,
     password: string
 }
@@ -26,7 +27,6 @@ export const useStudentStore = defineStore("studentStore", {
     },
   
     actions: {
-        // Inside your store
         async ensureStudentsLoaded() {
             if (!this.isDataFetched) {
                 await this.fetchStudents();
@@ -49,13 +49,12 @@ export const useStudentStore = defineStore("studentStore", {
                     this.students.push({
                         email: element.email,
                         name: element.name,
+                        teacherId: element.teacher_id,
                         teacher: element.teacher_name,
                         password: ""
                     })
 
                 });
-
-                console.log(JSON.stringify(this.students));
 
                 this.isDataFetched = true;
             } catch (error) {
@@ -63,7 +62,22 @@ export const useStudentStore = defineStore("studentStore", {
             }
         },
         addStudent(student: IStudent) {
-            this.students.push(student);
+            try {
+                const response = fetch(`${API_BASE_URL}/admin/addStudent`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(student)
+                })
+
+                if(!response)
+                    throw new Error("Failed to add student")
+                
+                this.students.push(student);
+            } catch (error) {
+                console.error("Error adding student: ", error);
+            }
         },
         removeStudent(email: string) {
             this.students = this.students.filter((student) => student.email !== email);

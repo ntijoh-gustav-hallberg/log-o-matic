@@ -55,7 +55,7 @@ class QotdApi < Sinatra::Base
 
   # Gets all students
   get '/admin/students' do
-    @db.execute('SELECT u.*, t.name AS teacher_name FROM users u LEFT JOIN users t ON u.teacherId = t.userId WHERE u.isTeacher = ?', 0).to_json
+    @db.execute('SELECT u.*, t.userId AS teacher_id, t.name AS teacher_name FROM users u LEFT JOIN users t ON u.teacherId = t.userId WHERE u.isTeacher = ?', 0).to_json
   end
 
   get '/admin/student/:id' do
@@ -66,18 +66,23 @@ class QotdApi < Sinatra::Base
 
   post '/admin/addStudent' do
     user_data = JSON.parse(request.body.read)
-    user = @db.execute('INSERT INTO users (email, name, password, teacherId, isTeacher) VALUES (?, ?, ?, ?, ?)', [user_data['email'], user_data['name'], BCrypt::Password.new(user_data['password']), user_data['teacherId'], 0])
+    user = @db.execute('INSERT INTO users (email, name, password, teacherId, isTeacher) VALUES (?, ?, ?, ?, ?)', [user_data['email'], user_data['name'], BCrypt::Password.create(user_data['password']), user_data['teacherId'], 0])
   end
 
   # Gets all teachers
-  get '/admin/teacher' do
+  get '/admin/teachers' do
     @db.execute('SELECT * FROM users WHERE isTeacher = ?', 1).to_json
   end
 
-  get '/admin/teacher/:id' do
+  get '/admin/teachers/:id' do
     p "Getting user: #{id}"
     
     @db.execute('SELECT * FROM users WHERE id = ? LIMIT 1', params['id']).first.to_json
+  end
+
+  post '/admin/addTeacher' do
+    user_data = JSON.parse(request.body.read)
+    user = @db.execute('INSERT INTO users (email, name, password, isTeacher) VALUES (?, ?, ?, ?)', [user_data['email'], user_data['name'], BCrypt::Password.create(user_data['password']), 1])
   end
 
   get '/api/v1/qotd' do
