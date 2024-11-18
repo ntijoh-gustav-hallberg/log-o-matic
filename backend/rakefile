@@ -1,0 +1,11 @@
+require 'bundler'
+Bundler.require
+
+task :seed do
+	require_relative 'db/seeder'
+	Seeder.seed!
+end
+
+task :dev do
+	bundle exec 'rerun rackup'
+end
