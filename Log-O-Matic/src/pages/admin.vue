@@ -1,101 +1,3 @@
-<script>
-import {useTeacherStore} from "../stores/teacherStore.ts"
-import {useStudentStore} from "../stores/studentStore.ts"
-
-const teacherStore = useTeacherStore();
-const studentStore = useStudentStore();
-
-// For tables
-    export default {
-        data () {
-            return {
-                teacherHeaders: [
-                    { title: 'email', align: 'start', key: 'email' },
-                    { title: 'name', align: 'start', key: 'name' },
-                    { title: '', align: 'end', key: 'password' },
-
-                ],
-                teachers: teacherStore.getAll,
-                teacherEmail: "",
-                teacherName: "",
-                teacherPassword: "",
-
-                studentHeaders: [
-                    { title: 'email', align: 'start', key: 'email' },
-                    { title: 'name', align: 'start', key: 'name' },
-                    { title: 'teacher', align: 'start', key: 'teacher' },
-                    { title: '', align: 'end', key: 'password' },
-
-                ],
-                students: studentStore.getAll,
-                studentTeacher: "",
-                studentEmail: "",
-                studentName: "",
-                studentPassword: "",
-            }
-        },
-  
-        computed: {
-            virtualTeachers () {
-                return [...Array(this.teachers.length).keys()].map(i => {
-                    const teacher = { ...this.teachers[i % this.teachers.length] }
-                    return teacher
-                })
-            },
-
-            virtualStudents () {
-                return [...Array(this.students.length).keys()].map(i => {
-                    const student = { ...this.students[i % this.students.length] }
-                    student.teacher = student.teacher || '';
-                    return student
-                })
-            },
-        },
-        methods: {
-            addStudent() {
-                const student = {
-                    email: this.studentEmail,
-                    name: this.studentName,
-                    teacherId: teacherStore.getTeacherIdByName(this.studentTeacher),
-                    teacher: this.studentTeacher,
-                    password: this.studentPassword,
-                }
-
-                studentStore.addStudent(student);
-            },
-
-            addTeacher() {
-                const teacher = {
-                    email: this.teacherEmail,
-                    name: this.teacherName,
-                    password: this.teacherPassword
-                }
-
-                teacherStore.addTeacher(teacher);
-            },
-
-            resetPassword(data) {
-                studentStore.resetPassword(data.email, data.password)
-            },
-
-            updateStudentTeacher(item) {
-                item.teacherId = teacherStore.getTeacherIdByName(item.teacher);
-                studentStore.updateStudentTeacher(item);
-            }
-        },
-
-        setup() {
-            const teachersList = computed(() =>
-                teacherStore.teachers.map(teacher => teacher.name));
-            
-            return {
-                teachersList
-            };
-
-        },
-    }
-</script>
-
 <template>
     <v-card title="Teachers" class="ma-5">
         <v-data-table-virtual
@@ -273,3 +175,101 @@ const studentStore = useStudentStore();
         </v-form>
     </v-card>
 </template>
+
+<script>
+import {useTeacherStore} from "../stores/teacherStore.ts"
+import {useStudentStore} from "../stores/studentStore.ts"
+
+const teacherStore = useTeacherStore();
+const studentStore = useStudentStore();
+
+// For tables
+    export default {
+        data () {
+            return {
+                teacherHeaders: [
+                    { title: 'email', align: 'start', key: 'email' },
+                    { title: 'name', align: 'start', key: 'name' },
+                    { title: '', align: 'end', key: 'password' },
+
+                ],
+                teachers: teacherStore.getAll,
+                teacherEmail: "",
+                teacherName: "",
+                teacherPassword: "",
+
+                studentHeaders: [
+                    { title: 'email', align: 'start', key: 'email' },
+                    { title: 'name', align: 'start', key: 'name' },
+                    { title: 'teacher', align: 'start', key: 'teacher' },
+                    { title: '', align: 'end', key: 'password' },
+
+                ],
+                students: studentStore.getAll,
+                studentTeacher: "",
+                studentEmail: "",
+                studentName: "",
+                studentPassword: "",
+            }
+        },
+  
+        computed: {
+            virtualTeachers () {
+                return [...Array(this.teachers.length).keys()].map(i => {
+                    const teacher = { ...this.teachers[i % this.teachers.length] }
+                    return teacher
+                })
+            },
+
+            virtualStudents () {
+                return [...Array(this.students.length).keys()].map(i => {
+                    const student = { ...this.students[i % this.students.length] }
+                    student.teacher = student.teacher || '';
+                    return student
+                })
+            },
+        },
+        methods: {
+            addStudent() {
+                const student = {
+                    email: this.studentEmail,
+                    name: this.studentName,
+                    teacherId: teacherStore.getTeacherIdByName(this.studentTeacher),
+                    teacher: this.studentTeacher,
+                    password: this.studentPassword,
+                }
+
+                studentStore.addStudent(student);
+            },
+
+            addTeacher() {
+                const teacher = {
+                    email: this.teacherEmail,
+                    name: this.teacherName,
+                    password: this.teacherPassword
+                }
+
+                teacherStore.addTeacher(teacher);
+            },
+
+            resetPassword(data) {
+                studentStore.resetPassword(data.email, data.password)
+            },
+
+            updateStudentTeacher(item) {
+                item.teacherId = teacherStore.getTeacherIdByName(item.teacher);
+                studentStore.updateStudentTeacher(item);
+            }
+        },
+
+        setup() {
+            const teachersList = computed(() =>
+                teacherStore.teachers.map(teacher => teacher.name));
+            
+            return {
+                teachersList
+            };
+
+        },
+    }
+</script>
