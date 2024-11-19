@@ -3,19 +3,6 @@ import { defineStore } from 'pinia'
 import router from '@/router'
 import { API_BASE_URL } from '../config';
 
-const users = [{
-    email: 'philip@agbilverkstad.se',
-    password: '123',
-    teacher: false
-}, {
-    email: '1@1.se',
-    password: '123',
-    teacher: true
-}
-]
-
-
-
 const useUserStore = defineStore('userstore', {
   state: () => ({
     token: "",

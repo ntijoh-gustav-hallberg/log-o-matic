@@ -5,11 +5,11 @@
     <v-app-bar-title @click="StartMenu()">Log-O-Matic</v-app-bar-title>
 
     <template v-slot:append>
-      <v-btn v-if="userStore.token && userStore.teacher">
+      <v-btn v-if="userStore.token && userStore.teacher" @click="router.push('/admin')">
         <v-icon  icon="mdi-cog"/>
         Admin
       </v-btn>
-      <v-btn v-if="userStore.token">
+      <v-btn v-if="userStore.token" @click="router.push('/logs')">
         <v-icon  icon="mdi-list-box"/>
         Logs
       </v-btn>
