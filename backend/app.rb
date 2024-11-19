@@ -85,9 +85,9 @@ class QotdApi < Sinatra::Base
     @db.execute('SELECT * FROM users WHERE isTeacher = ?', 1).to_json
   end
 
-  post '/admin/addTeacher' do
+  post '/admin/teacher/add' do
     user_data = JSON.parse(request.body.read)
-    user = @db.execute('INSERT INTO users (email, name, password, isTeacher) VALUES (?, ?, ?, ?)', [user_data['email'], user_data['name'], BCrypt::Password.create(user_data['password']), 1])
+    user = @db.execute('INSERT INTO users (email, name, password, teacherId, isTeacher) VALUES (?, ?, ?, ?, ?)', [user_data['email'], user_data['name'], BCrypt::Password.create(user_data['password']), nil, 1])
   end
 
   get '/api/v1/qotd' do

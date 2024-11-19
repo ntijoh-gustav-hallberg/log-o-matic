@@ -4,7 +4,8 @@ import { API_BASE_URL } from '../../config';
 interface ITeacher {
     userId: number,
     email: string,
-    name: string
+    name: string,
+    password: string,
 }
   
 export const useTeacherStore = defineStore("teacherStore", {
@@ -54,6 +55,7 @@ export const useTeacherStore = defineStore("teacherStore", {
                         userId: element.userId,
                         email: element.email,
                         name: element.name,
+                        password: "",
                     })
 
                 });
@@ -64,8 +66,16 @@ export const useTeacherStore = defineStore("teacherStore", {
             }
         },
         addTeacher(teacher: ITeacher) {
+            if(teacher.email === "" || teacher.name === "" || teacher.password === "") {
+                throw new Error("A field is empty");
+            }
+
+            if(Number(teacher.email) || Number(teacher.name)) {
+                throw new Error("A field is numeric that shouldnt be")
+            }
+
             try {
-                const response = fetch(`${API_BASE_URL}/admin/addTeacher`, {
+                const response = fetch(`${API_BASE_URL}/admin/teacher/add`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

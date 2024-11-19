@@ -58,7 +58,7 @@ const studentStore = useStudentStore();
                     name: this.studentName,
                     teacherId: teacherStore.getTeacherIdByName(this.studentTeacher),
                     teacher: this.studentTeacher,
-                    password: this.studentPassword
+                    password: this.studentPassword,
                 }
 
                 studentStore.addStudent(student);
@@ -78,7 +78,7 @@ const studentStore = useStudentStore();
                 studentStore.resetPassword(data.email, data.password)
             },
 
-            updateTeacher(item) {
+            updateStudentTeacher(item) {
                 item.teacherId = teacherStore.getTeacherIdByName(item.teacher);
                 studentStore.updateStudentTeacher(item);
             }
@@ -187,7 +187,7 @@ const studentStore = useStudentStore();
             :items="teachersList"
             v-model="item.teacher"
             variant="underlined"
-            @update:model-value="updateTeacher(item)"
+            @update:model-value="updateStudentTeacher(item)"
             ></v-select>
         </template>
         <template #item.password="{ item }">

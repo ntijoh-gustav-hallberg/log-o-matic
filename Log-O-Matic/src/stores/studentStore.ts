@@ -6,6 +6,7 @@ interface IStudent {
     name: string,
     teacherId: number,
     teacher: string,
+    password: string,
 }
 
 export const useStudentStore = defineStore("studentStore", {
@@ -50,6 +51,7 @@ export const useStudentStore = defineStore("studentStore", {
                         name: element.name,
                         teacherId: element.teacher_id,
                         teacher: element.teacher_name,
+                        password: "",
                     })
 
                 });
@@ -61,6 +63,14 @@ export const useStudentStore = defineStore("studentStore", {
         },
 
         addStudent(student: IStudent) {
+            if(student.email === "" || student.name === "" || student.teacher === "" || student.password === "") {
+                throw new Error("A field is empty");
+            }
+
+            if(Number(student.email) || Number(student.name)) {
+                throw new Error("A field is numeric that shouldnt be")
+            }
+
             try {
                 const response = fetch(`${API_BASE_URL}/admin/student/add`, {
                     method: 'POST',
@@ -80,6 +90,10 @@ export const useStudentStore = defineStore("studentStore", {
         },
 
         resetPassword(emailInput: string, passwordInput: string) {
+            if(passwordInput === "") {
+                throw new Error("Password field is empty");
+            }
+
             const data = {
                 email: emailInput,
                 password: passwordInput,
