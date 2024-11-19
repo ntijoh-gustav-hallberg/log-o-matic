@@ -42,10 +42,13 @@ class Seeder
     )')
 
 
+    # Test data
     encrypted_password1 = BCrypt::Password.create("123")
-    encrypted_password2 = BCrypt::Password.create("abc")
-    db.execute('INSERT INTO users (email, name, password, teacherId, isTeacher) VALUES (?, ?, ?, ?, ?)', ["daniel.berg@ga.ntig.se", "Daniel Berg", BCrypt::Password.create("abc"), 1, 1])
-    db.execute('INSERT INTO users (email, name, password, teacherId, isTeacher) VALUES (?, ?, ?, ?, ?)', ["ola.lindberg@ga.ntig.se", "Ola Lindberg", BCrypt::Password.create("def"), 1, 1])
+    db.execute('INSERT INTO users (email, name, password, teacherId, isTeacher) VALUES (?,?,?,?,?)', ['1@1.se', 'skibidi', encrypted_password1, null, 1])
+    db.execute('INSERT INTO users (email, name, password, teacherId, isTeacher) VALUES (?,?,?,?,?)', ['2@2.se', 'rizzler', encrypted_password1, 1, 0])
+
+    db.execute('INSERT INTO users (email, name, password, teacherId, isTeacher) VALUES (?, ?, ?, ?, ?)', ["daniel.berg@ga.ntig.se", "Daniel Berg", BCrypt::Password.create("abc"), null, 1])
+    db.execute('INSERT INTO users (email, name, password, teacherId, isTeacher) VALUES (?, ?, ?, ?, ?)', ["ola.lindberg@ga.ntig.se", "Ola Lindberg", BCrypt::Password.create("def"), null, 1])
     db.execute('INSERT INTO users (email, name, password, teacherId, isTeacher) VALUES (?, ?, ?, ?, ?)', ["emma.svensson@elev.ga.ntig.se", "Emma Svensson", BCrypt::Password.create("123"), 1, 0])
     db.execute('INSERT INTO users (email, name, password, teacherId, isTeacher) VALUES (?, ?, ?, ?, ?)', ["alex.johansson@elev.ga.ntig.se", "Alex Johansson", BCrypt::Password.create("123"), 1, 0])
     db.execute('INSERT INTO users (email, name, password, teacherId, isTeacher) VALUES (?, ?, ?, ?, ?)', ["maria.karlsson@elev.ga.ntig.se", "Maria Karlsson", BCrypt::Password.create("123"), 2, 0])
