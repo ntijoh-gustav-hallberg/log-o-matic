@@ -63,7 +63,7 @@ export const useStudentStore = defineStore("studentStore", {
         },
         addStudent(student: IStudent) {
             try {
-                const response = fetch(`${API_BASE_URL}/admin/addStudent`, {
+                const response = fetch(`${API_BASE_URL}/admin/student/add`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -89,12 +89,28 @@ export const useStudentStore = defineStore("studentStore", {
                 this.students[studentIndex].password = password;
             }
         },
-        updateStudentTeacher(email: string, teacher: string) {
-            const studentIndex = this.students.findIndex(
-                (student) => student.email === email);
-            
-            if(studentIndex !== -1) {
-                this.students[studentIndex].teacher = teacher;
+        updateStudentTeacher(studentData: IStudent) { 
+            try {
+                const response = fetch(`${API_BASE_URL}/admin/student/changeTeacher`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(studentData)
+                })
+
+                if(!response)
+                    throw new Error("Failed to add student")
+                
+                const studentIndex = this.students.findIndex(
+                    (student) => student.email === studentData.email);
+                    
+                if(studentIndex !== -1) {
+                    this.students[studentIndex].teacher = studentData.teacher;
+                    this.students[studentIndex].teacherId = studentData.teacherId;
+                }
+            } catch (error) {
+                console.error("Error adding student: ", error);
             }
         }
     },

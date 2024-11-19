@@ -61,10 +61,15 @@ class QotdApi < Sinatra::Base
   get '/admin/student/:id' do
     p "Getting user: #{id}"
 
-    @db.execute('SELECT * FROM users WHERE id = ? LIMIT 1', params['id']).first.to_json
+    @db.execute('SELECT * FROM users WHERE userId = ? LIMIT 1', params['id']).first.to_json
   end
 
-  post '/admin/addStudent' do
+  post '/admin/student/changeTeacher' do
+    user_data = JSON.parse(request.body.read)
+    user = @db.execute('UPDATE users SET teacherId = ? WHERE email = ?', [user_data['teacherId'], user_data['email']])
+  end
+
+  post '/admin/student/add' do
     user_data = JSON.parse(request.body.read)
     user = @db.execute('INSERT INTO users (email, name, password, teacherId, isTeacher) VALUES (?, ?, ?, ?, ?)', [user_data['email'], user_data['name'], BCrypt::Password.create(user_data['password']), user_data['teacherId'], 0])
   end
@@ -77,7 +82,7 @@ class QotdApi < Sinatra::Base
   get '/admin/teachers/:id' do
     p "Getting user: #{id}"
     
-    @db.execute('SELECT * FROM users WHERE id = ? LIMIT 1', params['id']).first.to_json
+    @db.execute('SELECT * FROM users WHERE userId = ? LIMIT 1', params['id']).first.to_json
   end
 
   post '/admin/addTeacher' do

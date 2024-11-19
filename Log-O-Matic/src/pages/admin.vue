@@ -53,7 +53,6 @@ const studentStore = useStudentStore();
         },
         methods: {
             addStudent() {
-                console.log(this.studentTeacher)
                 const student = {
                     email: this.studentEmail,
                     name: this.studentName,
@@ -82,15 +81,22 @@ const studentStore = useStudentStore();
                     studentStore.resetPassword(data.email, data.password)
                 }
             },
+
+            updateTeacher(item) {
+                console.log(item);
+                item.teacherId = teacherStore.getTeacherIdByName(item.teacher);
+                studentStore.updateStudentTeacher(item);
+            }
         },
 
         setup() {
             const teachersList = computed(() =>
                 teacherStore.teachers.map(teacher => teacher.name));
-
+            
             return {
                 teachersList
             };
+
         },
     }
 </script>
@@ -180,13 +186,14 @@ const studentStore = useStudentStore();
             item-value="name"
         >
         <template #item.teacher="{ item }">
-                <!-- Input Field -->
-                <v-select
-                label="Teacher"
-                :items="teachersList"
-                v-model="item.teacher"
-                variant="underlined"
-                ></v-select>
+            <!-- Input Field -->
+            <v-select
+            label="Teacher"
+            :items="teachersList"
+            v-model="item.teacher"
+            variant="underlined"
+            @update:model-value="updateTeacher(item)"
+            ></v-select>
         </template>
         <template #item.password="{ item }">
             <div class="d-flex align-center">
