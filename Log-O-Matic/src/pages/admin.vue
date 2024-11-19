@@ -203,20 +203,23 @@
             </template>
         </v-confirm-edit>
 
-        <v-row class="ma-1">
-            <v-card :title="`Question #${item.questionId}`" :text="item.question" max-width="300px" variant="outlined" class="ma-5" v-for="item in questions">
-                <v-card-actions>
-                    <v-btn variant="tonal" base-color="blue" @click="toggleChangeQuestion(item.question, item.questionId)">
-                        Change
-                    </v-btn>
-                    <v-btn variant="tonal" base-color="red" @click="deleteQuestion(item.questionId)">
-                        Delete
-                    </v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-row>
-
-        <v-divider></v-divider>
+        <v-data-table-virtual
+            :headers="questionHeaders"
+            :items="virtualQuestions"
+            item-value="name"
+        >
+        <template #item.actions="{ item }">
+            <div class="d-flex align-center">
+                <v-btn color="blue" rounded="2" @click="toggleChangeQuestion(item)">
+                Change
+                </v-btn>
+                <!-- Button -->
+                <v-btn color="red" rounded="2" @click="deleteQuestion(item)">
+                Delete
+                </v-btn>
+            </div>
+        </template>
+        </v-data-table-virtual>
 
         <v-card-subtitle class="my-4">Add New Question</v-card-subtitle>
         <v-form v-model="valid">
@@ -255,8 +258,8 @@ const studentStore = useStudentStore();
         data () {
             return {
                 teacherHeaders: [
-                    { title: 'email', align: 'start', key: 'email' },
-                    { title: 'name', align: 'start', key: 'name' },
+                    { title: 'Email', align: 'start', key: 'email' },
+                    { title: 'Name', align: 'start', key: 'name' },
                     { title: '', align: 'end', key: 'password' },
 
                 ],
@@ -266,9 +269,9 @@ const studentStore = useStudentStore();
                 teacherPassword: "",
 
                 studentHeaders: [
-                    { title: 'email', align: 'start', key: 'email' },
-                    { title: 'name', align: 'start', key: 'name' },
-                    { title: 'teacher', align: 'start', key: 'teacher' },
+                    { title: 'Email', align: 'start', key: 'email' },
+                    { title: 'Name', align: 'start', key: 'name' },
+                    { title: 'Teacher', align: 'start', key: 'teacher' },
                     { title: '', align: 'end', key: 'password' },
 
                 ],
@@ -278,10 +281,14 @@ const studentStore = useStudentStore();
                 studentName: "",
                 studentPassword: "",
 
+                questionHeaders: [
+                    { title: 'Questions', align: 'start', key: 'question' },
+                    { title: '', align: 'end', key: 'actions' },
+                ],
+                questions: questionStore.getAll,
                 viewChangeQuestion: false,
                 selectedQuestionId: 0,
                 currentQuestion: "",
-                questions: questionStore.getAll,
                 questionInput: "",
             }
         },
@@ -299,6 +306,13 @@ const studentStore = useStudentStore();
                     const student = { ...this.students[i % this.students.length] }
                     student.teacher = student.teacher || '';
                     return student
+                })
+            },
+
+            virtualQuestions () {
+                return [...Array(this.questions.length).keys()].map(i => {
+                    const question = { ...this.questions[i % this.questions.length] }
+                    return question
                 })
             },
         },
@@ -334,14 +348,14 @@ const studentStore = useStudentStore();
                 studentStore.updateStudentTeacher(item);
             },
 
-            toggleChangeQuestion(question, questionId) {
-                // Toggles visibility of form
-                if(this.selectedQuestionId === questionId || !this.viewChangeQuestion) {
+            toggleChangeQuestion(item) {
+                //Toggles visibility of form
+                if(this.selectedQuestionId === item.questionId || !this.viewChangeQuestion) {
                     this.viewChangeQuestion = !this.viewChangeQuestion;
                 }
-                this.selectedQuestionId = questionId;
+                this.selectedQuestionId = item.questionId;
 
-                this.currentQuestion = question
+                this.currentQuestion = item.question
 
                 // Focus the textarea after it becomes visible
                 this.$nextTick(() => {
@@ -352,8 +366,12 @@ const studentStore = useStudentStore();
                 });
             },
 
-            addQuestion() {
-                questionStore.addQuestion(this.questionInput);
+            async addQuestion() {
+                const response = await questionStore.addQuestion(this.questionInput);
+
+                if(response) {
+                    questionStore.fetchQuestions();
+                }
             },
 
             renderQuestion(proxyModel) {
@@ -372,8 +390,8 @@ const studentStore = useStudentStore();
                 questionStore.updateQuestion({questionId: this.selectedQuestionId, question: this.currentQuestion});
             },
 
-            deleteQuestion(questionId) {
-                questionStore.removeQuestion(questionId);
+            deleteQuestion(item) {
+                questionStore.removeQuestion(item.questionId);
             },
         },
 

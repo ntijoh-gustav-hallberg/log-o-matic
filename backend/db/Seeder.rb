@@ -53,6 +53,12 @@ class Seeder
     db.execute('INSERT INTO users (email, name, password, teacherId, isTeacher) VALUES (?, ?, ?, ?, ?)', ["alex.johansson@elev.ga.ntig.se", "Alex Johansson", BCrypt::Password.create("123"), 3, 0])
     db.execute('INSERT INTO users (email, name, password, teacherId, isTeacher) VALUES (?, ?, ?, ?, ?)', ["maria.karlsson@elev.ga.ntig.se", "Maria Karlsson", BCrypt::Password.create("123"), 4, 0])
 
+    db.execute('INSERT INTO questions (question) VALUES (?)', "Hur mår du?")
+    db.execute('INSERT INTO questions (question) VALUES (?)', "Vad har du gjort idag?")
+    db.execute('INSERT INTO questions (question) VALUES (?)', "Har du lärt dig något nytt idag? Isåfall vad?")
+    db.execute('INSERT INTO questions (question) VALUES (?)', "Hur utalas kex? Det finns ett rätt svar")
+    db.execute('INSERT INTO questions (question) VALUES (?)', "Hur utalas lakrits? Det finns ett rätt svar")
+
   #   db.execute('INSERT INTO qotd (author, quote) VALUES (?,?)' ,["Bill Gates", "Today, you always know whether you are on the Internet or on your PC's hard drive. Tomorrow, you will not care and may not even know."])
   end
 end

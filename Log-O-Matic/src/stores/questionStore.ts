@@ -39,6 +39,8 @@ export const useQuestionStore = defineStore("questionStore", {
 
                 const data = await response.json();
 
+                this.questions = [];
+
                 data.forEach(element => {
                     this.questions.push({
                         questionId: element.questionId,
@@ -69,8 +71,8 @@ export const useQuestionStore = defineStore("questionStore", {
 
                 if(!response)
                     throw new Error("Failed to add question")
-                
-                this.questions.push({questionId: -1, question});
+
+                return true;
             } catch (error) {
                 console.error("Error adding question: ", error);
             }
@@ -113,7 +115,10 @@ export const useQuestionStore = defineStore("questionStore", {
                 if(!response)
                     throw new Error("Failed to update question")
                 
-                this.questions = this.questions.filter((question) => question.questionId !== questionId);
+                const questionIndex = this.questions.findIndex(
+                    (question) => question.questionId === questionId);
+                    
+                this.questions.splice(questionIndex, 1)
 
             } catch (error) {
                 console.error("Error updating question: ", error);
