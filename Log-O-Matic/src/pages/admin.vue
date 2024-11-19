@@ -174,6 +174,45 @@
             </v-container>
         </v-form>
     </v-card>
+
+    <v-card title="Questions" class="ma-5">
+        <v-confirm-edit v-model="confirmEdit" @save="changeQuestion('1')" @cancel="cancelQuestion('1')">
+            <template v-slot:default="{ model: proxyModel, actions }">
+                <v-card
+                class="mx-auto d-block"
+                max-width="400"
+                title="Update Field"
+                v-model="changeQuestionCard"
+                >
+                <template v-slot:text>
+                    <v-textarea
+                    v-model="proxyModel.value"
+                    messages="Confirm edit"
+                    ></v-textarea>
+                </template>
+
+                <template v-slot:actions>
+                    <v-spacer></v-spacer>
+
+                    <component :is="actions"></component>
+                </template>
+                </v-card>
+            </template>
+        </v-confirm-edit>
+
+        <v-row class="ma-1">
+            <v-card :title="`Question #${i}`" text="Här har vi frågan. Och frågan är hur har arbetet gått idag? Vad var de svåraste och lättaste?" max-width="300px" variant="outlined" class="ma-5" v-for="i in 3">
+                <v-card-actions>
+                    <v-btn variant="tonal" base-color="blue" @click="toggleChangeQuestion()">
+                        Change
+                    </v-btn>
+                    <v-btn variant="tonal" base-color="red" >
+                        Delete
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-row>
+    </v-card>
 </template>
 
 <script>
@@ -182,6 +221,8 @@ import {useStudentStore} from "../stores/studentStore.ts"
 
 const teacherStore = useTeacherStore();
 const studentStore = useStudentStore();
+
+let viewChangeQuestion = false;
 
 // For tables
     export default {
@@ -259,7 +300,24 @@ const studentStore = useStudentStore();
             updateStudentTeacher(item) {
                 item.teacherId = teacherStore.getTeacherIdByName(item.teacher);
                 studentStore.updateStudentTeacher(item);
-            }
+            },
+
+            toggleChangeQuestion() {
+                console.log(viewChangeQuestion)
+                if(viewChangeQuestion) {
+                    this.changeQuestionCard = "d-none"
+                    // d.none
+                } else {
+                    this.changeQuestionCard= "d-block"
+                    // d.block
+                }
+
+                viewChangeQuestion = !viewChangeQuestion;
+            },
+
+            deleteQuestion(questionId) {
+                
+            },
         },
 
         setup() {
