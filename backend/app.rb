@@ -42,7 +42,6 @@ class QotdApi < Sinatra::Base
   before do
     response.headers['Access-Control-Allow-Origin'] = '*'
     content_type :json
-    sleep 1 #simulate slow internet connection
   end
 
   options "*" do
@@ -89,7 +88,7 @@ class QotdApi < Sinatra::Base
     user_data = JSON.parse(request.body.read)
     user = @db.execute('INSERT INTO users (email, name, password, teacherId, isTeacher) VALUES (?, ?, ?, ?, ?)', [user_data['email'], user_data['name'], BCrypt::Password.create(user_data['password']), nil, 1])
   end
-
+  
   get '/api/v1/qotd' do
     if authenticated?
       qotd = @db.execute('SELECT * FROM qotd ORDER BY RANDOM() LIMIT 1').first.to_json
@@ -120,11 +119,11 @@ class QotdApi < Sinatra::Base
   post '/api/v1/users/signin' do
     p "Signing in"
     user_data = JSON.parse(request.body.read)
-    user = @db.execute('SELECT * FROM users WHERE username = ?', user_data['username']).first
+    user = @db.execute('SELECT * FROM users WHERE email = ?', user_data['email']).first
 
-    if user && BCrypt::Password.new(user['encrypted_password']) == user_data['password']
+    if user && BCrypt::Password.new(user['password']) == user_data['password']
       token = JWT.encode({ id: user['id'], issued_at: Time.now }, MY_SECRET_SIGNING_KEY)
-      { token: token }.to_json
+      { token: token , isTeacher: user['isTeacher']}.to_json
     else
       unauthorized_response
     end
