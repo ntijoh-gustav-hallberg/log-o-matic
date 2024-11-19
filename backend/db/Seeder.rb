@@ -40,6 +40,9 @@ class Seeder
       question TEXT
     )')
 
+    db.execute('INSERT INTO users (userId, email, name, password, isTeacher) VALUES (?,?,?,?,?)', [1, '1@1.se', 'skibidi', '123', 1])
+    db.execute('INSERT INTO users (userId, email, name, password, isTeacher) VALUES (?,?,?,?,?)', [2, '2@2.se', 'rizzler', '123', 0])
+
 
     encrypted_password1 = BCrypt::Password.create("123")
     encrypted_password2 = BCrypt::Password.create("abc")
