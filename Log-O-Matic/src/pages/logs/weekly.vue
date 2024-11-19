@@ -49,15 +49,93 @@
               </v-timeline-item>
             </v-timeline>
           </v-card>
+
+          <!-- Comment Input Card -->
+          <v-card>
+            <v-card-title>Submit a Comment</v-card-title>
+            <v-card-text>
+              <v-textarea label="Your Comment" v-model="newComment" rows="4" outlined></v-textarea>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="primary" @click="submitComment" :disabled="!newComment.trim()">
+                Submit
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+
+          <v-divider class="my-4"></v-divider>
+
         </v-col>
       </v-row>
+
     </v-container>
   </v-app>
 </template>
 
 <script lang="ts" setup>
+
 import { ref, computed } from "vue";
 import { useRoute } from "vue-router";
+
+// Set initial constants and get routes from the link
+const route = useRoute();
+const week = route.query.week || "45";
+const studentId = typeof route.query.student === 'number' ? ref(route.query.student) : ref(0);
+
+interface Answer {
+  answerId: number;
+  questionId: number | null;
+  answer: string;
+}
+
+interface Question {
+  questionId: number;
+  question: string | null;
+}
+
+interface Comment {
+  commentId: number;
+  userId: number;
+  comment: string;
+}
+
+interface ApiResponse {
+  postId: number;
+  userId: number;
+  date: string;
+  questions: Question[];
+  answers: Answer[];
+  comments: Comment[];
+}
+
+const queryParams = new URLSearchParams({
+  studentId: studentId.value.toString(),
+  week: week.toString(),
+});
+const apiUrl = `/api/v1/posts?${queryParams.toString()}`;
+const data = ref<ApiResponse[] | null>(null);
+const loading = ref(false);
+const error = ref<string | null>(null);
+
+const fetchData = async (): Promise<void> => {
+  loading.value = true;
+  error.value = null;
+  try {
+    const response = await fetch(apiUrl);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const result: ApiResponse[] = await response.json();
+    data.value = result;
+  } catch (err) {
+    error.value = (err as Error).message;
+  } finally {
+    loading.value = false;
+  }
+};
+
+const siteInformation = fetchData();
 
 // Day conversion (Swedish: english)
 const tableHeaders = [
@@ -68,11 +146,6 @@ const tableHeaders = [
   { text: "Torsdag", value: "thursday" },
   { text: "Fredag", value: "friday" },
 ];
-
-// Set initial constants and get routes from the link
-const route = useRoute();
-const week = route.query.week || "45";
-const currentPersonIndex = typeof route.query.student === 'number' ? ref(route.query.student) : ref(0);
 
 // Placeholder Student
 
@@ -126,6 +199,15 @@ const changeDay = (direction: "previous" | "next") => {
     currentDayIndex.value = (currentDayIndex.value - 1 + 5) % 5;
   } else if (direction === "next") {
     currentDayIndex.value = (currentDayIndex.value + 1) % 5;
+  }
+};
+
+const newComment = ref<string>('');
+
+const submitComment = (): void => {
+  if (newComment.value.trim()) {
+    console.log('Submitted Comment:', newComment.value.trim());
+    newComment.value = ''; // Clear input after submission
   }
 };
 

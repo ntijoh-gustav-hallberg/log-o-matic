@@ -1,8 +1,8 @@
 require 'sqlite3'
 require 'bcrypt'
-class Seeder
 
-  def self.seed!  
+class Seeder
+  def self.seed!
     db = SQLite3::Database.new('db/log-o-matic.db')
 
     db.execute('DROP TABLE IF EXISTS users')
@@ -34,14 +34,19 @@ class Seeder
     db.execute('CREATE TABLE posts(
       postId INTEGER PRIMARY KEY AUTOINCREMENT,
       userId INTEGER NOT NULL,
-      date TEXT NOT NULL
+      date TEXT NOT NULL,
+      week INTEGER NOT NULL
     )')
     db.execute('CREATE TABLE questions(
       questionId INTEGER PRIMARY KEY AUTOINCREMENT,
       question TEXT
     )')
 
+    # encrypted_password1 = BCrypt::Password.create('123')
+    # encrypted_password2 = BCrypt::Password.create('abc')
+    #   db.execute('INSERT INTO users (username, encrypted_password) VALUES (?, ?)', ["ola", encrypted_password1])
 
+<<<<<<< HEAD
     # Test data
     encrypted_password1 = BCrypt::Password.create("123")
     db.execute('INSERT INTO users (email, name, password, teacherId, isTeacher) VALUES (?,?,?,?,?)', ['1@1.se', 'skibidi', encrypted_password1, nil, 1])
@@ -60,5 +65,8 @@ class Seeder
     db.execute('INSERT INTO questions (question) VALUES (?)', "Hur utalas lakrits? Det finns ett rätt svar")
 
   #   db.execute('INSERT INTO qotd (author, quote) VALUES (?,?)' ,["Bill Gates", "Today, you always know whether you are on the Internet or on your PC's hard drive. Tomorrow, you will not care and may not even know."])
+=======
+    #   db.execute('INSERT INTO qotd (author, quote) VALUES (?,?)' ,["Bill Gates", "Today, you always know whether you are on the Internet or on your PC's hard drive. Tomorrow, you will not care and may not even know."])
+>>>>>>> 3fc8d8e (Created api route to grab information about a student's logs, on a weekly basis. Created a fetch function to utalize this api in weekly.vue)
   end
 end

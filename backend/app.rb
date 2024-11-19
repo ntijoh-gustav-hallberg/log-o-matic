@@ -1,13 +1,17 @@
 require 'bcrypt'
+require 'debug'
 require 'sinatra'
 require 'time'
 require 'jwt'
-require 'debug'
+require 'json'
 
+<<<<<<< HEAD
 MY_SECRET_SIGNING_KEY = "THISISASUPERSECRET"
+=======
+MY_SECRET_SIGNING_KEY = 'your-256-bit-secret'
+>>>>>>> 3fc8d8e (Created api route to grab information about a student's logs, on a weekly basis. Created a fetch function to utalize this api in weekly.vue)
 
 class QotdApi < Sinatra::Base
-
   def initialize
     super
     @db = SQLite3::Database.new('db/log-o-matic.db')
@@ -15,24 +19,23 @@ class QotdApi < Sinatra::Base
   end
 
   helpers do
-
     def authenticated?
       jwt_bearer_token = env.fetch('HTTP_AUTHORIZATION', '').slice(7..-1)
       return false unless jwt_bearer_token
+
       p "JWT bearer | #{jwt_bearer_token}"
       begin
         @token = JWT.decode(jwt_bearer_token, MY_SECRET_SIGNING_KEY, false)
-        @user = @db.execute("SELECT * FROM users WHERE id = ?", @token.first['id']).first
-        return !!@user
-      rescue JWT::DecodeError => ex
-        return false
+        @user = @db.execute('SELECT * FROM users WHERE id = ?', @token.first['id']).first
+        !!@user
+      rescue JWT::DecodeError => e
+        false
       end
     end
 
     def unauthorized_response
       halt 401, { error: 'Unauthorized' }.to_json
     end
-
   end
 
   configure do
@@ -42,16 +45,22 @@ class QotdApi < Sinatra::Base
   before do
     response.headers['Access-Control-Allow-Origin'] = '*'
     content_type :json
+<<<<<<< HEAD
+=======
+    sleep 1 # simulate slow internet connection
+>>>>>>> 3fc8d8e (Created api route to grab information about a student's logs, on a weekly basis. Created a fetch function to utalize this api in weekly.vue)
   end
 
-  options "*" do
-    response.headers["Access-Control-Allow-Methods"] = "GET, PUT, POST, PATCH, DELETE, OPTIONS"
-    response.headers["Access-Control-Allow-Headers"] = "Authorization, Content-Type, Location, Accept, X-User-Email, X-Auth-Token"
-    response.headers["Access-Control-Allow-Origin"] = "*"
-    response.headers["Access-Control-Expose-Headers"] = "Location, Link"
+  options '*' do
+    response.headers['Access-Control-Allow-Methods'] = 'GET, PUT, POST, PATCH, DELETE, OPTIONS'
+    response.headers['Access-Control-Allow-Headers'] =
+      'Authorization, Content-Type, Location, Accept, X-User-Email, X-Auth-Token'
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Expose-Headers'] = 'Location, Link'
     200
   end
 
+<<<<<<< HEAD
   # Admin
   post '/admin/resetPassword' do
     user_data = JSON.parse(request.body.read)
@@ -109,6 +118,40 @@ class QotdApi < Sinatra::Base
     user = @db.execute('INSERT INTO questions (question) VALUES (?)', user_data)
 
     true
+=======
+  get '/api/v1/posts' do
+    content_type :json
+
+    if authenticated?
+      student_id = params['studentId']
+      week = params['week']
+      posts = @db.execute('SELECT * FROM posts WHERE userId = ?, week = ?', [student_id, week])
+
+      result = posts.map do |post|
+        post_id = post['postId']
+
+        questions = @db.execute(
+          'SELECT questionId, question FROM questions WHERE questionId IN (SELECT questionId FROM answers WHERE postId = ?)', [post_id]
+        )
+
+        answers = @db.execute('SELECT answerId, questionId, answer FROM answers WHERE postId = ?', post_id)
+        # Fetch related comments
+        comments = @db.execute('SELECT commentId, userId, comment FROM comments WHERE postId = ?', post_id)
+        {
+          postId: post['postId'],
+          userId: post['userId'],
+          date: post['date'],
+          questions: questions,
+          answers: answers,
+          comments: comments
+        }
+      end
+
+      result.to_json
+    else
+      unauthorized_response
+    end
+>>>>>>> 3fc8d8e (Created api route to grab information about a student's logs, on a weekly basis. Created a fetch function to utalize this api in weekly.vue)
   end
 
   get '/api/v1/qotd' do
@@ -121,7 +164,7 @@ class QotdApi < Sinatra::Base
   end
 
   get '/api/v1/users/?' do
-    p "Getting all users"
+    p 'Getting all users'
     if authenticated?
       @db.execute('SELECT id, username FROM users').to_json
     else
@@ -139,7 +182,7 @@ class QotdApi < Sinatra::Base
   end
 
   post '/api/v1/users/signin' do
-    p "Signing in"
+    p 'Signing in'
     user_data = JSON.parse(request.body.read)
     user = @db.execute('SELECT * FROM users WHERE email = ?', user_data['email']).first
 

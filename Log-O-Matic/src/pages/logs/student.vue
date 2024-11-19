@@ -41,12 +41,29 @@
           </v-card>
         </v-col>
       </v-row>
+
+      <!-- Comment Input Card -->
+      <v-card>
+        <v-card-title>Submit a Comment</v-card-title>
+        <v-card-text>
+          <v-textarea label="Your Comment" v-model="newComment" rows="4" outlined></v-textarea>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="primary" @click="submitComment" :disabled="!newComment.trim()">
+            Submit
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+
+      <v-divider class="my-4"></v-divider>
+
     </v-container>
   </v-app>
 </template>
 
 <script lang="ts" setup>
-import { ref, computed } from "vue";
+import { defineComponent, ref, computed } from "vue";
 import { useRoute } from "vue-router";
 
 // Day conversion (Swedish: english)
@@ -116,6 +133,15 @@ const changeDay = (direction: "previous" | "next") => {
     currentDayIndex.value = (currentDayIndex.value - 1 + 5) % 5;
   } else if (direction === "next") {
     currentDayIndex.value = (currentDayIndex.value + 1) % 5;
+  }
+};
+
+const newComment = ref<string>('');
+
+const submitComment = (): void => {
+  if (newComment.value.trim()) {
+    console.log('Submitted Comment:', newComment.value.trim());
+    newComment.value = ''; // Clear input after submission
   }
 };
 
