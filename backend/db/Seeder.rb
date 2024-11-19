@@ -16,6 +16,7 @@ class Seeder
         email TEXT NOT NULL,
         name TEXT NOT NULL,
         password TEXT NOT NULL,
+        teacherId INTERGER,
         isTeacher INTEGER
     )')
     db.execute('CREATE TABLE answers(
@@ -43,7 +44,11 @@ class Seeder
 
     encrypted_password1 = BCrypt::Password.create("123")
     encrypted_password2 = BCrypt::Password.create("abc")
-  #   db.execute('INSERT INTO users (username, encrypted_password) VALUES (?, ?)', ["ola", encrypted_password1])
+    db.execute('INSERT INTO users (email, name, password, teacherId, isTeacher) VALUES (?, ?, ?, ?, ?)', ["daniel.berg@ga.ntig.se", "Daniel Berg", BCrypt::Password.create("abc"), 1, 1])
+    db.execute('INSERT INTO users (email, name, password, teacherId, isTeacher) VALUES (?, ?, ?, ?, ?)', ["ola.lindberg@ga.ntig.se", "Ola Lindberg", BCrypt::Password.create("def"), 1, 1])
+    db.execute('INSERT INTO users (email, name, password, teacherId, isTeacher) VALUES (?, ?, ?, ?, ?)', ["emma.svensson@elev.ga.ntig.se", "Emma Svensson", BCrypt::Password.create("123"), 1, 0])
+    db.execute('INSERT INTO users (email, name, password, teacherId, isTeacher) VALUES (?, ?, ?, ?, ?)', ["alex.johansson@elev.ga.ntig.se", "Alex Johansson", BCrypt::Password.create("123"), 1, 0])
+    db.execute('INSERT INTO users (email, name, password, teacherId, isTeacher) VALUES (?, ?, ?, ?, ?)', ["maria.karlsson@elev.ga.ntig.se", "Maria Karlsson", BCrypt::Password.create("123"), 2, 0])
 
   #   db.execute('INSERT INTO qotd (author, quote) VALUES (?,?)' ,["Bill Gates", "Today, you always know whether you are on the Internet or on your PC's hard drive. Tomorrow, you will not care and may not even know."])
   end
