@@ -40,12 +40,11 @@ class Seeder
       question TEXT
     )')
 
-    db.execute('INSERT INTO users (userId, email, name, password, isTeacher) VALUES (?,?,?,?,?)', [1, '1@1.se', 'skibidi', '123', 1])
-    db.execute('INSERT INTO users (userId, email, name, password, isTeacher) VALUES (?,?,?,?,?)', [2, '2@2.se', 'rizzler', '123', 0])
 
-
+    # Test data
     encrypted_password1 = BCrypt::Password.create("123")
-    encrypted_password2 = BCrypt::Password.create("abc")
+    db.execute('INSERT INTO users (userId, email, name, password, isTeacher) VALUES (?,?,?,?,?)', [1, '1@1.se', 'skibidi', encrypted_password1, 1])
+    db.execute('INSERT INTO users (userId, email, name, password, isTeacher) VALUES (?,?,?,?,?)', [2, '2@2.se', 'rizzler', encrypted_password1, 0])
   #   db.execute('INSERT INTO users (username, encrypted_password) VALUES (?, ?)', ["ola", encrypted_password1])
 
   #   db.execute('INSERT INTO qotd (author, quote) VALUES (?,?)' ,["Bill Gates", "Today, you always know whether you are on the Internet or on your PC's hard drive. Tomorrow, you will not care and may not even know."])

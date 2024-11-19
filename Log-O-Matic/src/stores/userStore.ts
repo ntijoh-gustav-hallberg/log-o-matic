@@ -1,6 +1,7 @@
 // Utilities
 import { defineStore } from 'pinia'
 import router from '@/router'
+import { API_BASE_URL } from '../config';
 
 const users = [{
     email: 'philip@agbilverkstad.se',
@@ -12,6 +13,7 @@ const users = [{
     teacher: true
 }
 ]
+
 
 
 const useUserStore = defineStore('userstore', {
@@ -26,26 +28,37 @@ const useUserStore = defineStore('userstore', {
         console.log(token + ' is set')
         this.token = token;
     },
-    signIn(credentials: {email: string, password: string}){
+    async signIn(credentials: {email: string, password: string}){
 
-        const user = users.find((user) => user.email === credentials.email);
-        if (user) {
-            if (user.password === credentials.password) {
-                console.log("Sign-in successful!");
-                if (user.teacher){
-                    this.teacher = user.teacher
+        try{
+            const response = await fetch(`${API_BASE_URL}/api/v1/users/signin`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(credentials)
+            });
+    
+            if (!response.ok) {
+                throw new Error("Failed to log in: " + response);
+            }
+    
+            const data = await response.json();
+    
+            console.log("API response data:", data);
+
+            if (data.token){
+                this.token = data.token
+                console.log("JWT Token set in store:", this.token);
+                if (data.isTeacher){
+                    this.teacher = true
                 }else{
                     this.teacher = false
                 }
-                this.login('verified')
                 router.push('/')
-            } else {
-                console.error("Incorrect password.");
             }
-        } else {
-            console.error("User not found.");
-        }
-          
+            
+        }catch (error) {
+            console.error("Login failed:", error);
+        } 
     }
   }
 })
