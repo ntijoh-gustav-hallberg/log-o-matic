@@ -176,18 +176,21 @@
     </v-card>
 
     <v-card title="Questions" class="ma-5">
-        <v-confirm-edit v-model="confirmEdit" @save="changeQuestion('1')" @cancel="cancelQuestion('1')">
+        <v-confirm-edit v-model="confirmEdit" @save="updateQuestion()" @cancel="cancelQuestion()" v-if="viewChangeQuestion">
             <template v-slot:default="{ model: proxyModel, actions }">
                 <v-card
-                class="mx-auto d-block"
+                class="mx-auto"
                 max-width="400"
-                title="Update Field"
+                title="Change Question"
                 v-model="changeQuestionCard"
                 >
                 <template v-slot:text>
                     <v-textarea
                     v-model="proxyModel.value"
                     messages="Confirm edit"
+                    ref="editTextArea"
+                    @update:focused="renderQuestion(proxyModel)"
+                    @update:model-value="updateCurrentQuestion(proxyModel)"
                     ></v-textarea>
                 </template>
 
@@ -201,28 +204,51 @@
         </v-confirm-edit>
 
         <v-row class="ma-1">
-            <v-card :title="`Question #${i}`" text="Här har vi frågan. Och frågan är hur har arbetet gått idag? Vad var de svåraste och lättaste?" max-width="300px" variant="outlined" class="ma-5" v-for="i in 3">
+            <v-card :title="`Question #${item.questionId}`" :text="item.question" max-width="300px" variant="outlined" class="ma-5" v-for="item in questions">
                 <v-card-actions>
-                    <v-btn variant="tonal" base-color="blue" @click="toggleChangeQuestion()">
+                    <v-btn variant="tonal" base-color="blue" @click="toggleChangeQuestion(item.question, item.questionId)">
                         Change
                     </v-btn>
-                    <v-btn variant="tonal" base-color="red" >
+                    <v-btn variant="tonal" base-color="red" @click="deleteQuestion(item.questionId)">
                         Delete
                     </v-btn>
                 </v-card-actions>
             </v-card>
         </v-row>
+
+        <v-divider></v-divider>
+
+        <v-card-subtitle class="my-4">Add New Question</v-card-subtitle>
+        <v-form v-model="valid">
+            <v-container>
+            <v-row>
+
+                <v-textarea
+                    v-model="questionInput"
+                    label="Question"
+                    variant="outlined"
+                    required
+                ></v-textarea>
+            </v-row>
+            <v-row>
+                <v-spacer></v-spacer>
+                <v-btn color="green" rounded="2" class="mb-2" @click="addQuestion">
+                Create
+                </v-btn>
+            </v-row>
+            </v-container>
+        </v-form>
     </v-card>
 </template>
 
 <script>
 import {useTeacherStore} from "../stores/teacherStore.ts"
 import {useStudentStore} from "../stores/studentStore.ts"
+import {useQuestionStore} from "../stores/questionStore.ts"
 
+const questionStore = useQuestionStore();
 const teacherStore = useTeacherStore();
 const studentStore = useStudentStore();
-
-let viewChangeQuestion = false;
 
 // For tables
     export default {
@@ -251,6 +277,12 @@ let viewChangeQuestion = false;
                 studentEmail: "",
                 studentName: "",
                 studentPassword: "",
+
+                viewChangeQuestion: false,
+                selectedQuestionId: 0,
+                currentQuestion: "",
+                questions: questionStore.getAll,
+                questionInput: "",
             }
         },
   
@@ -302,21 +334,46 @@ let viewChangeQuestion = false;
                 studentStore.updateStudentTeacher(item);
             },
 
-            toggleChangeQuestion() {
-                console.log(viewChangeQuestion)
-                if(viewChangeQuestion) {
-                    this.changeQuestionCard = "d-none"
-                    // d.none
-                } else {
-                    this.changeQuestionCard= "d-block"
-                    // d.block
+            toggleChangeQuestion(question, questionId) {
+                // Toggles visibility of form
+                if(this.selectedQuestionId === questionId || !this.viewChangeQuestion) {
+                    this.viewChangeQuestion = !this.viewChangeQuestion;
                 }
+                this.selectedQuestionId = questionId;
 
-                viewChangeQuestion = !viewChangeQuestion;
+                this.currentQuestion = question
+
+                // Focus the textarea after it becomes visible
+                this.$nextTick(() => {
+                    const textarea = this.$refs.editTextArea;
+                    if (textarea && textarea.focus) {
+                        textarea.focus(); // Programmatically focus the textarea
+                    }
+                });
+            },
+
+            addQuestion() {
+                questionStore.addQuestion(this.questionInput);
+            },
+
+            renderQuestion(proxyModel) {
+                proxyModel.value = this.currentQuestion
+            },
+
+            updateCurrentQuestion(proxyModel) {
+                this.currentQuestion = proxyModel.value;
+            },
+
+            cancelQuestion() {
+                this.viewChangeQuestion = !this.viewChangeQuestion;
+            },
+
+            updateQuestion() {
+                questionStore.updateQuestion({questionId: this.selectedQuestionId, question: this.currentQuestion});
             },
 
             deleteQuestion(questionId) {
-                
+                questionStore.removeQuestion(questionId);
             },
         },
 
