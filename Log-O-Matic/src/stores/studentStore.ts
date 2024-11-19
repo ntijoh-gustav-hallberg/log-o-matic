@@ -79,10 +79,6 @@ export const useStudentStore = defineStore("studentStore", {
             }
         },
 
-        removeStudent(email: string) {
-            this.students = this.students.filter((student) => student.email !== email);
-        },
-
         resetPassword(emailInput: string, passwordInput: string) {
             const data = {
                 email: emailInput,

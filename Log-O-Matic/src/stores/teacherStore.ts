@@ -80,20 +80,6 @@ export const useTeacherStore = defineStore("teacherStore", {
             } catch (error) {
                 console.error("Error adding teacher: ", error);
             }
-        },
-        removeTeacher(email: string) {
-            this.teachers = this.teachers.filter((teacher) => teacher.email !== email);
-        },
-        updateTeacher(email: string, updatedData: Partial<ITeacher>) {
-            const teacherIndex = this.teachers.findIndex(
-                (teacher) => teacher.email === email);
-
-            if (teacherIndex !== -1) {
-                this.teachers[teacherIndex] = {
-                    ...this.teachers[teacherIndex],
-                    ...updatedData,
-                };
-            }
         }
     },
 });
