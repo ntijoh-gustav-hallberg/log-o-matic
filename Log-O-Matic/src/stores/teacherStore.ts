@@ -4,8 +4,7 @@ import { API_BASE_URL } from '../../config';
 interface ITeacher {
     userId: number,
     email: string,
-    name: string,
-    password: string
+    name: string
 }
   
 export const useTeacherStore = defineStore("teacherStore", {
@@ -55,7 +54,6 @@ export const useTeacherStore = defineStore("teacherStore", {
                         userId: element.userId,
                         email: element.email,
                         name: element.name,
-                        password: ""
                     })
 
                 });
@@ -95,13 +93,6 @@ export const useTeacherStore = defineStore("teacherStore", {
                     ...this.teachers[teacherIndex],
                     ...updatedData,
                 };
-            }
-        },
-        resetPassword(email: string, password: string) {
-            const teacherIndex = this.teachers.findIndex(
-                (teacher) => teacher.email === email);
-            if (teacherIndex !== -1) {
-                this.teachers[teacherIndex].password = password;
             }
         }
     },

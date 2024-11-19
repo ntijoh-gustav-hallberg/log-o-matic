@@ -6,7 +6,6 @@ interface IStudent {
     name: string,
     teacherId: number,
     teacher: string,
-    password: string
 }
 
 export const useStudentStore = defineStore("studentStore", {
@@ -51,7 +50,6 @@ export const useStudentStore = defineStore("studentStore", {
                         name: element.name,
                         teacherId: element.teacher_id,
                         teacher: element.teacher_name,
-                        password: ""
                     })
 
                 });
@@ -61,6 +59,7 @@ export const useStudentStore = defineStore("studentStore", {
                 console.error("Error fetching students: ", error);
             }
         },
+
         addStudent(student: IStudent) {
             try {
                 const response = fetch(`${API_BASE_URL}/admin/student/add`, {
@@ -79,16 +78,34 @@ export const useStudentStore = defineStore("studentStore", {
                 console.error("Error adding student: ", error);
             }
         },
+
         removeStudent(email: string) {
             this.students = this.students.filter((student) => student.email !== email);
         },
-        resetPassword(email: string, password: string) {
-            const studentIndex = this.students.findIndex(
-                (student) => student.email === email);
-            if (studentIndex !== -1) {
-                this.students[studentIndex].password = password;
+
+        resetPassword(emailInput: string, passwordInput: string) {
+            const data = {
+                email: emailInput,
+                password: passwordInput,
+            }
+            
+            try {
+                const response = fetch(`${API_BASE_URL}/admin/resetPassword`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                })
+
+                if(!response)
+                    throw new Error("Failed to reset password")
+                
+            } catch (error) {
+                console.error("Error reseting password: ", error);
             }
         },
+
         updateStudentTeacher(studentData: IStudent) { 
             try {
                 const response = fetch(`${API_BASE_URL}/admin/student/changeTeacher`, {
@@ -100,17 +117,17 @@ export const useStudentStore = defineStore("studentStore", {
                 })
 
                 if(!response)
-                    throw new Error("Failed to add student")
+                    throw new Error("Failed to update student")
                 
                 const studentIndex = this.students.findIndex(
                     (student) => student.email === studentData.email);
-                    
+
                 if(studentIndex !== -1) {
                     this.students[studentIndex].teacher = studentData.teacher;
                     this.students[studentIndex].teacherId = studentData.teacherId;
                 }
             } catch (error) {
-                console.error("Error adding student: ", error);
+                console.error("Error updating student: ", error);
             }
         }
     },

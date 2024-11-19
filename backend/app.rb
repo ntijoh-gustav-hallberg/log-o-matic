@@ -53,15 +53,21 @@ class QotdApi < Sinatra::Base
     200
   end
 
+  post '/admin/resetPassword' do
+    user_data = JSON.parse(request.body.read)
+    p user_data
+    user = @db.execute('UPDATE users SET password = ? WHERE email = ?', [BCrypt::Password.create(user_data['password']), user_data['email']])
+  end
+
+  get '/admin/person/:id' do
+    p "Getting user: #{id}"
+    
+    @db.execute('SELECT * FROM users WHERE userId = ? LIMIT 1', params['id']).first.to_json
+  end
+
   # Gets all students
   get '/admin/students' do
     @db.execute('SELECT u.*, t.userId AS teacher_id, t.name AS teacher_name FROM users u LEFT JOIN users t ON u.teacherId = t.userId WHERE u.isTeacher = ?', 0).to_json
-  end
-
-  get '/admin/student/:id' do
-    p "Getting user: #{id}"
-
-    @db.execute('SELECT * FROM users WHERE userId = ? LIMIT 1', params['id']).first.to_json
   end
 
   post '/admin/student/changeTeacher' do
@@ -77,12 +83,6 @@ class QotdApi < Sinatra::Base
   # Gets all teachers
   get '/admin/teachers' do
     @db.execute('SELECT * FROM users WHERE isTeacher = ?', 1).to_json
-  end
-
-  get '/admin/teachers/:id' do
-    p "Getting user: #{id}"
-    
-    @db.execute('SELECT * FROM users WHERE userId = ? LIMIT 1', params['id']).first.to_json
   end
 
   post '/admin/addTeacher' do

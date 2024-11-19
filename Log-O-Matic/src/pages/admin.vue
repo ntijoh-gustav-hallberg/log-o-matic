@@ -74,16 +74,11 @@ const studentStore = useStudentStore();
                 teacherStore.addTeacher(teacher);
             },
 
-            resetPassword(data, isTeacher) {
-                if(isTeacher) {
-                    teacherStore.resetPassword(data.email, data.password)
-                } else {
-                    studentStore.resetPassword(data.email, data.password)
-                }
+            resetPassword(data) {
+                studentStore.resetPassword(data.email, data.password)
             },
 
             updateTeacher(item) {
-                console.log(item);
                 item.teacherId = teacherStore.getTeacherIdByName(item.teacher);
                 studentStore.updateStudentTeacher(item);
             }
@@ -121,7 +116,7 @@ const studentStore = useStudentStore();
                 ></v-text-field>
 
                 <!-- Button -->
-                <v-btn color="blue" rounded="2" @click="resetPassword(item, true)">
+                <v-btn color="blue" rounded="2" @click="resetPassword(item)">
                 Reset
                 </v-btn>
             </div>
@@ -208,7 +203,7 @@ const studentStore = useStudentStore();
                 ></v-text-field>
 
                 <!-- Button -->
-                <v-btn color="blue" rounded="2" @click="resetPassword(item, true)">
+                <v-btn color="blue" rounded="2" @click="resetPassword(item)">
                 Reset
                 </v-btn>
             </div>
