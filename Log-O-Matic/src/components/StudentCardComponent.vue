@@ -35,15 +35,17 @@
                 
               <td v-if="student.teacher === whatTeacherAreYou"><v-btn @click="studentView(student.id)">{{ student.name }}</v-btn></td>
               <td v-if="student.teacher === whatTeacherAreYou" v-for="(status, index) in student.status" :key="index">
-                <button
+                <v-btn
                   v-if="status === 'missing'"
                   @click="seperateStudentView(student.id, headers[index+1].key)"
+                  icon
                 >
                   <v-icon color="orange">mdi-alert-circle</v-icon>
-                </button>
-                <button
+                </v-btn>
+                <v-btn
                   v-else-if="status === 'unread'"
                   @click="seperateStudentView(student.id, headers[index+1].key)"
+                  icon
                 >
                 <v-badge
                   
@@ -53,10 +55,11 @@
                 >
                   <v-icon color="grey">mdi-check</v-icon>
                 </v-badge>
-            </button>
-            <button
+            </v-btn>
+            <v-btn
                   v-else-if="status === 'read'"
                   @click="seperateStudentView(student.id, headers[index+1].key)"
+                  icon
                 >
                 <v-badge
                   
@@ -66,7 +69,7 @@
                 >
                   <v-icon color="blue">mdi-check</v-icon>
                 </v-badge>
-                </button>
+                </v-btn>
                 <v-badge
                   v-else
                   color="green"
@@ -126,15 +129,17 @@
                 v-for="(status, index) in student.status"
                 :key="index"
               >
-                <button
+                <v-btn
                   v-if="status === 'missing'"
                   @click="seperateStudentView(student.id, headers[index+1].key)"
+                  icon
                 >
                   <v-icon color="orange">mdi-alert-circle</v-icon>
-                </button>
-                <button
+            </v-btn>
+                <v-btn
                   v-else-if="status === 'unread'"
                   @click="seperateStudentView(student.id, headers[index+1].key)"
+                  icon
                 >
                 <v-badge
                   
@@ -144,10 +149,11 @@
                 >
                   <v-icon color="grey">mdi-check</v-icon>
                 </v-badge>
-            </button>
-            <button
+            </v-btn>
+            <v-btn
                   v-else-if="status === 'read'"
                   @click="seperateStudentView(student.id, headers[index+1].key)"
+                  icon
                 >
                 <v-badge
                   
@@ -157,7 +163,7 @@
                 >
                   <v-icon color="blue">mdi-check</v-icon>
                 </v-badge>
-                </button>
+                </v-btn>
                 <v-badge
                   v-else
                   color="green"
@@ -283,9 +289,10 @@ function seperateStudentView(id: number, day: string){
 
 function handleCellClick(dag: string) {
     router.push({
-        path: `/logs/week/${week}`,
+        path: `/logs/daily`,
         query: {
-            day: dag
+            day: dag,
+            week: week
         }
     })
   console.log(`Clicked on: ${dag}`);
