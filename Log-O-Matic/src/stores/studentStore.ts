@@ -21,9 +21,6 @@ export const useStudentStore = defineStore("studentStore", {
         getAll: (state) => {
             return state.students;
         },
-        getStudentByEmail: (state) => (email: string) => {
-            return state.students.find((student) => student.email === email);
-        },
     },
   
     actions: {
@@ -42,6 +39,8 @@ export const useStudentStore = defineStore("studentStore", {
                 })
                 if (!response.ok)
                     throw new Error("Failed to get students")
+
+                this.students.splice(0, this.students.length);
 
                 const data = await response.json();
 
@@ -62,7 +61,7 @@ export const useStudentStore = defineStore("studentStore", {
             }
         },
 
-        addStudent(student: IStudent) {
+        async addStudent(student: IStudent) {
             if(student.email === "" || student.name === "" || student.teacher === "" || student.password === "") {
                 throw new Error("A field is empty");
             }
@@ -72,7 +71,7 @@ export const useStudentStore = defineStore("studentStore", {
             }
 
             try {
-                const response = fetch(`${API_BASE_URL}/admin/student/add`, {
+                const response = await fetch(`${API_BASE_URL}/admin/student/add`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -83,7 +82,7 @@ export const useStudentStore = defineStore("studentStore", {
                 if(!response)
                     throw new Error("Failed to add student")
                 
-                this.students.push(student);
+                this.fetchStudents();
             } catch (error) {
                 console.error("Error adding student: ", error);
             }

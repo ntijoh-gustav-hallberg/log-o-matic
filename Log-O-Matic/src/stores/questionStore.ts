@@ -34,12 +34,13 @@ export const useQuestionStore = defineStore("questionStore", {
                         'Content-Type': 'application/json'
                     }
                 })
+
                 if (!response.ok)
                     throw new Error("Failed to get questions")
 
-                const data = await response.json();
+                this.questions.splice(0, this.questions.length);
 
-                this.questions = [];
+                const data = await response.json();
 
                 data.forEach(element => {
                     this.questions.push({
@@ -55,13 +56,13 @@ export const useQuestionStore = defineStore("questionStore", {
             }
         },
 
-        addQuestion(question: string) {
+        async addQuestion(question: string) {
             if(question === "") {
                 throw new Error("A field is empty");
             }
 
             try {
-                const response = fetch(`${API_BASE_URL}/admin/question/add`, {
+                const response = await fetch(`${API_BASE_URL}/admin/question/add`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -72,10 +73,11 @@ export const useQuestionStore = defineStore("questionStore", {
                 if(!response)
                     throw new Error("Failed to add question")
 
-                return true;
+                return this.fetchQuestions();
             } catch (error) {
                 console.error("Error adding question: ", error);
             }
+
         },
 
         updateQuestion(questionData: IQuestion) {
@@ -117,7 +119,7 @@ export const useQuestionStore = defineStore("questionStore", {
                 
                 const questionIndex = this.questions.findIndex(
                     (question) => question.questionId === questionId);
-                    
+
                 this.questions.splice(questionIndex, 1)
 
             } catch (error) {

@@ -366,12 +366,8 @@ const studentStore = useStudentStore();
                 });
             },
 
-            async addQuestion() {
-                const response = await questionStore.addQuestion(this.questionInput);
-
-                if(response) {
-                    questionStore.fetchQuestions();
-                }
+            addQuestion() {
+                questionStore.addQuestion(this.questionInput);
             },
 
             renderQuestion(proxyModel) {

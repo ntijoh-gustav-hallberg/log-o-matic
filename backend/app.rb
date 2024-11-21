@@ -106,8 +106,9 @@ class QotdApi < Sinatra::Base
 
   post '/admin/question/add' do
     user_data = JSON.parse(request.body.read)
-    p user_data
     user = @db.execute('INSERT INTO questions (question) VALUES (?)', user_data)
+
+    true
   end
 
   get '/api/v1/qotd' do
