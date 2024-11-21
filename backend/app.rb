@@ -52,9 +52,9 @@ class QotdApi < Sinatra::Base
     200
   end
 
+  # Admin
   post '/admin/resetPassword' do
     user_data = JSON.parse(request.body.read)
-    p user_data
     user = @db.execute('UPDATE users SET password = ? WHERE email = ?', [BCrypt::Password.create(user_data['password']), user_data['email']])
   end
 
@@ -64,7 +64,7 @@ class QotdApi < Sinatra::Base
     @db.execute('SELECT * FROM users WHERE userId = ? LIMIT 1', params['id']).first.to_json
   end
 
-  # Gets all students
+  # Students
   get '/admin/students' do
     @db.execute('SELECT u.*, t.userId AS teacher_id, t.name AS teacher_name FROM users u LEFT JOIN users t ON u.teacherId = t.userId WHERE u.isTeacher = ?', 0).to_json
   end
@@ -79,7 +79,7 @@ class QotdApi < Sinatra::Base
     user = @db.execute('INSERT INTO users (email, name, password, teacherId, isTeacher) VALUES (?, ?, ?, ?, ?)', [user_data['email'], user_data['name'], BCrypt::Password.create(user_data['password']), user_data['teacherId'], 0])
   end
 
-  # Gets all teachers
+  # Teachers
   get '/admin/teachers' do
     @db.execute('SELECT * FROM users WHERE isTeacher = ?', 1).to_json
   end
@@ -89,6 +89,28 @@ class QotdApi < Sinatra::Base
     user = @db.execute('INSERT INTO users (email, name, password, teacherId, isTeacher) VALUES (?, ?, ?, ?, ?)', [user_data['email'], user_data['name'], BCrypt::Password.create(user_data['password']), nil, 1])
   end
   
+  # Questions
+  get '/admin/questions' do
+    @db.execute('SELECT * FROM questions').to_json
+  end
+
+  post '/admin/question/update' do
+    user_data = JSON.parse(request.body.read)
+    user = @db.execute('UPDATE questions SET question = ? WHERE questionId = ?', [user_data['question'], user_data['questionId']])
+  end
+
+  post '/admin/question/remove' do
+    user_data = JSON.parse(request.body.read)
+    user = @db.execute('DELETE FROM questions WHERE questionId = ?', user_data)
+  end
+
+  post '/admin/question/add' do
+    user_data = JSON.parse(request.body.read)
+    user = @db.execute('INSERT INTO questions (question) VALUES (?)', user_data)
+
+    true
+  end
+
   get '/api/v1/qotd' do
     if authenticated?
       qotd = @db.execute('SELECT * FROM qotd ORDER BY RANDOM() LIMIT 1').first.to_json

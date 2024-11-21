@@ -20,12 +20,6 @@ export const useTeacherStore = defineStore("teacherStore", {
         getAll: (state) => {
             return state.teachers;
         },
-        getTeacherByEmail: (state) => (email: string) => {
-            return state.teachers.find((teacher) => teacher.email === email);
-        },
-        teacherCount: (state) => {
-            return state.teachers.length;
-        },
         getTeacherIdByName: (state) => (name: string) => {
             return state.teachers.find((teachers) => teachers.name === name)?.userId;
         },
@@ -48,6 +42,8 @@ export const useTeacherStore = defineStore("teacherStore", {
                 if (!response.ok)
                     throw new Error("Failed to get teachers")
 
+                this.teachers.splice(0, this.teachers.length)
+
                 const data = await response.json();
 
                 data.forEach(element => {
@@ -65,7 +61,7 @@ export const useTeacherStore = defineStore("teacherStore", {
                 console.error("Error fetching teachers: ", error);
             }
         },
-        addTeacher(teacher: ITeacher) {
+        async addTeacher(teacher: ITeacher) {
             if(teacher.email === "" || teacher.name === "" || teacher.password === "") {
                 throw new Error("A field is empty");
             }
@@ -75,7 +71,7 @@ export const useTeacherStore = defineStore("teacherStore", {
             }
 
             try {
-                const response = fetch(`${API_BASE_URL}/admin/teacher/add`, {
+                const response = await fetch(`${API_BASE_URL}/admin/teacher/add`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -86,7 +82,7 @@ export const useTeacherStore = defineStore("teacherStore", {
                 if(!response)
                     throw new Error("Failed to add teacher")
                 
-                this.teachers.push(teacher);
+                this.fetchTeachers();
             } catch (error) {
                 console.error("Error adding teacher: ", error);
             }
