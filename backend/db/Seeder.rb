@@ -5,6 +5,8 @@ class Seeder
   def self.seed!
     db = SQLite3::Database.new('db/log-o-matic.db')
 
+    print('Seeding the Seedy Seed')
+
     db.execute('DROP TABLE IF EXISTS users')
     db.execute('DROP TABLE IF EXISTS answers')
     db.execute('DROP TABLE IF EXISTS comments')
@@ -42,11 +44,28 @@ class Seeder
       question TEXT
     )')
 
-    # encrypted_password1 = BCrypt::Password.create('123')
-    # encrypted_password2 = BCrypt::Password.create('abc')
-    #   db.execute('INSERT INTO users (username, encrypted_password) VALUES (?, ?)', ["ola", encrypted_password1])
+    add_data(db)
+  end
 
-<<<<<<< HEAD
+  def self.add_data(db)
+    # Encrypt password using BCrypt for security
+    encrypted_password = BCrypt::Password.create('studentpassword')
+
+    # Insert one student with encrypted password
+    db.execute('INSERT INTO users (email, name, password, isTeacher) VALUES (?, ?, ?, ?)',
+               ['student@example.com', 'John Student', encrypted_password, 0]) # Student
+
+    # Insert posts for week 47 (one post for each day: Monday to Friday)
+    db.execute('INSERT INTO posts (userId, date, week) VALUES (?, ?, ?)', [0, '2024-11-18', 47]) # Monday
+    db.execute('INSERT INTO posts (userId, date, week) VALUES (?, ?, ?)', [0, '2024-11-19', 47]) # Tuesday
+    db.execute('INSERT INTO posts (userId, date, week) VALUES (?, ?, ?)', [0, '2024-11-20', 47]) # Wednesday
+    db.execute('INSERT INTO posts (userId, date, week) VALUES (?, ?, ?)', [0, '2024-11-21', 47]) # Thursday
+    db.execute('INSERT INTO posts (userId, date, week) VALUES (?, ?, ?)', [0, '2024-11-22', 47]) # Friday
+
+    # Insert 2 programming-related questions
+    db.execute('INSERT INTO questions (question) VALUES (?)', ['What programming language do you prefer?'])
+    db.execute('INSERT INTO questions (question) VALUES (?)', ['What is your favorite coding project?'])
+
     # Test data
     encrypted_password1 = BCrypt::Password.create("123")
     db.execute('INSERT INTO users (email, name, password, teacherId, isTeacher) VALUES (?,?,?,?,?)', ['1@1.se', 'skibidi', encrypted_password1, nil, 1])
@@ -64,9 +83,22 @@ class Seeder
     db.execute('INSERT INTO questions (question) VALUES (?)', "Hur utalas kex? Det finns ett rätt svar")
     db.execute('INSERT INTO questions (question) VALUES (?)', "Hur utalas lakrits? Det finns ett rätt svar")
 
-  #   db.execute('INSERT INTO qotd (author, quote) VALUES (?,?)' ,["Bill Gates", "Today, you always know whether you are on the Internet or on your PC's hard drive. Tomorrow, you will not care and may not even know."])
-=======
-    #   db.execute('INSERT INTO qotd (author, quote) VALUES (?,?)' ,["Bill Gates", "Today, you always know whether you are on the Internet or on your PC's hard drive. Tomorrow, you will not care and may not even know."])
->>>>>>> 3fc8d8e (Created api route to grab information about a student's logs, on a weekly basis. Created a fetch function to utalize this api in weekly.vue)
+    db.execute('INSERT INTO answers (questionId, postId, answer) VALUES (?, ?, ?)', [1, 1, 'Python']) # Monday
+    db.execute('INSERT INTO answers (questionId, postId, answer) VALUES (?, ?, ?)', [2, 1, 'Building a web scraper']) # Monday
+
+    db.execute('INSERT INTO answers (questionId, postId, answer) VALUES (?, ?, ?)', [1, 2, 'JavaScript']) # Tuesday
+    db.execute('INSERT INTO answers (questionId, postId, answer) VALUES (?, ?, ?)', [2, 2, 'Building an API with Node.js']) # Tuesday
+
+    db.execute('INSERT INTO answers (questionId, postId, answer) VALUES (?, ?, ?)', [1, 3, 'Ruby']) # Wednesday
+    db.execute('INSERT INTO answers (questionId, postId, answer) VALUES (?, ?, ?)', [2, 3, 'Developing a mobile app']) # Wednesday
+
+    db.execute('INSERT INTO answers (questionId, postId, answer) VALUES (?, ?, ?)', [1, 4, 'C#']) # Thursday
+    db.execute('INSERT INTO answers (questionId, postId, answer) VALUES (?, ?, ?)', [2, 4, 'Building a game engine']) # Thursday
+
+    db.execute('INSERT INTO answers (questionId, postId, answer) VALUES (?, ?, ?)', [1, 5, 'Go']) # Friday
+    db.execute('INSERT INTO answers (questionId, postId, answer) VALUES (?, ?, ?)', [2, 5, 'Developing cloud-based applications']) # Friday
+
+    db.execute('INSERT INTO comments (userId, comment, postId) VALUES (?, ?, ?)', [1, 'Great answers! Keep it up!', 1]) # Teacher commenting on Monday's post
+    db.execute('INSERT INTO comments (userId, comment, postId) VALUES (?, ?, ?)', [1, 'Nice project idea for a mobile app!', 3]) # Teacher commenting on Wednesday's post
   end
 end

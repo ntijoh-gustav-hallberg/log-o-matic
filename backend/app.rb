@@ -5,13 +5,9 @@ require 'time'
 require 'jwt'
 require 'json'
 
-<<<<<<< HEAD
-MY_SECRET_SIGNING_KEY = "THISISASUPERSECRET"
-=======
 MY_SECRET_SIGNING_KEY = 'your-256-bit-secret'
->>>>>>> 3fc8d8e (Created api route to grab information about a student's logs, on a weekly basis. Created a fetch function to utalize this api in weekly.vue)
 
-class QotdApi < Sinatra::Base
+class App < Sinatra::Base
   def initialize
     super
     @db = SQLite3::Database.new('db/log-o-matic.db')
@@ -20,20 +16,22 @@ class QotdApi < Sinatra::Base
 
   helpers do
     def authenticated?
-      jwt_bearer_token = env.fetch('HTTP_AUTHORIZATION', '').slice(7..-1)
-      return false unless jwt_bearer_token
+      # jwt_bearer_token = env.fetch('HTTP_AUTHORIZATION', '').slice(7..-1)
+      # return false unless jwt_bearer_token
 
-      p "JWT bearer | #{jwt_bearer_token}"
-      begin
-        @token = JWT.decode(jwt_bearer_token, MY_SECRET_SIGNING_KEY, false)
-        @user = @db.execute('SELECT * FROM users WHERE id = ?', @token.first['id']).first
-        !!@user
-      rescue JWT::DecodeError => e
-        false
-      end
+      # p "JWT bearer | #{jwt_bearer_token}"
+      # begin
+      #  @token = JWT.decode(jwt_bearer_token, MY_SECRET_SIGNING_KEY, false)
+      #  @user = @db.execute('SELECT * FROM users WHERE id = ?', @token.first['id']).first
+      #  !!@user
+      # rescue JWT::DecodeError => e
+      #  false
+      # end
+      true
     end
 
     def unauthorized_response
+      puts('Failed Response')
       halt 401, { error: 'Unauthorized' }.to_json
     end
   end
@@ -45,10 +43,7 @@ class QotdApi < Sinatra::Base
   before do
     response.headers['Access-Control-Allow-Origin'] = '*'
     content_type :json
-<<<<<<< HEAD
-=======
     sleep 1 # simulate slow internet connection
->>>>>>> 3fc8d8e (Created api route to grab information about a student's logs, on a weekly basis. Created a fetch function to utalize this api in weekly.vue)
   end
 
   options '*' do
@@ -60,7 +55,6 @@ class QotdApi < Sinatra::Base
     200
   end
 
-<<<<<<< HEAD
   # Admin
   post '/admin/resetPassword' do
     user_data = JSON.parse(request.body.read)
@@ -118,14 +112,20 @@ class QotdApi < Sinatra::Base
     user = @db.execute('INSERT INTO questions (question) VALUES (?)', user_data)
 
     true
-=======
   get '/api/v1/posts' do
     content_type :json
 
+    puts('Attempting to fetch backend data for Posts')
+
     if authenticated?
+
+      puts('Succeeded in Authentification')
       student_id = params['studentId']
       week = params['week']
-      posts = @db.execute('SELECT * FROM posts WHERE userId = ?, week = ?', [student_id, week])
+      puts "Student ID: #{params['studentId']}, Week: #{params['week']}"
+      posts = @db.execute('SELECT * FROM posts WHERE userId = ? AND week = ?', [student_id, week])
+
+      puts "Found posts #{posts}"
 
       result = posts.map do |post|
         post_id = post['postId']
@@ -137,6 +137,8 @@ class QotdApi < Sinatra::Base
         answers = @db.execute('SELECT answerId, questionId, answer FROM answers WHERE postId = ?', post_id)
         # Fetch related comments
         comments = @db.execute('SELECT commentId, userId, comment FROM comments WHERE postId = ?', post_id)
+
+        puts "Inputting answers: #{answers} and comments #{comments} for post id #{post_id}"
         {
           postId: post['postId'],
           userId: post['userId'],
@@ -151,7 +153,6 @@ class QotdApi < Sinatra::Base
     else
       unauthorized_response
     end
->>>>>>> 3fc8d8e (Created api route to grab information about a student's logs, on a weekly basis. Created a fetch function to utalize this api in weekly.vue)
   end
 
   get '/api/v1/qotd' do
