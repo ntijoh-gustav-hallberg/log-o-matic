@@ -22,5 +22,7 @@ declare module 'vue-router/auto-routes' {
     '/logs/': RouteRecordInfo<'/logs/', '/logs', Record<never, never>, Record<never, never>>,
     '/logs/week/[week]': RouteRecordInfo<'/logs/week/[week]', '/logs/week/:week', { week: ParamValue<true> }, { week: ParamValue<false> }>,
     '/logs/weekly': RouteRecordInfo<'/logs/weekly', '/logs/weekly', Record<never, never>, Record<never, never>>,
+    '/admin': RouteRecordInfo<'/admin', '/admin', Record<never, never>, Record<never, never>>,
+    '/loginPage': RouteRecordInfo<'/loginPage', '/loginPage', Record<never, never>, Record<never, never>>,
   }
 }

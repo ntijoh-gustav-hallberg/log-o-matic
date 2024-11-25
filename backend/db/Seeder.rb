@@ -16,6 +16,10 @@ class Seeder
         email TEXT NOT NULL,
         name TEXT NOT NULL,
         password TEXT NOT NULL,
+<<<<<<< HEAD
+=======
+        teacherId INTERGER,
+>>>>>>> 7313e3b762f44dbe590e330c79665efa0eeb8f9f
         isTeacher INTEGER
     )')
     db.execute('CREATE TABLE answers(
@@ -40,6 +44,7 @@ class Seeder
       question TEXT
     )')
 
+<<<<<<< HEAD
     db.execute('INSERT INTO users (userId, email, name, password, isTeacher) VALUES (?,?,?,?,?)', [1, '1@1.se', 'skibidi', '123', 1])
     db.execute('INSERT INTO users (userId, email, name, password, isTeacher) VALUES (?,?,?,?,?)', [2, '2@2.se', 'rizzler', '123', 0])
 
@@ -47,6 +52,25 @@ class Seeder
     encrypted_password1 = BCrypt::Password.create("123")
     encrypted_password2 = BCrypt::Password.create("abc")
   #   db.execute('INSERT INTO users (username, encrypted_password) VALUES (?, ?)', ["ola", encrypted_password1])
+=======
+
+    # Test data
+    encrypted_password1 = BCrypt::Password.create("123")
+    db.execute('INSERT INTO users (email, name, password, teacherId, isTeacher) VALUES (?,?,?,?,?)', ['1@1.se', 'skibidi', encrypted_password1, nil, 1])
+    db.execute('INSERT INTO users (email, name, password, teacherId, isTeacher) VALUES (?,?,?,?,?)', ['2@2.se', 'rizzler', encrypted_password1, 1, 0])
+
+    db.execute('INSERT INTO users (email, name, password, teacherId, isTeacher) VALUES (?, ?, ?, ?, ?)', ["daniel.berg@ga.ntig.se", "Daniel Berg", BCrypt::Password.create("abc"), nil, 1])
+    db.execute('INSERT INTO users (email, name, password, teacherId, isTeacher) VALUES (?, ?, ?, ?, ?)', ["ola.lindberg@ga.ntig.se", "Ola Lindberg", BCrypt::Password.create("def"), nil, 1])
+    db.execute('INSERT INTO users (email, name, password, teacherId, isTeacher) VALUES (?, ?, ?, ?, ?)', ["emma.svensson@elev.ga.ntig.se", "Emma Svensson", BCrypt::Password.create("123"), 3, 0])
+    db.execute('INSERT INTO users (email, name, password, teacherId, isTeacher) VALUES (?, ?, ?, ?, ?)', ["alex.johansson@elev.ga.ntig.se", "Alex Johansson", BCrypt::Password.create("123"), 3, 0])
+    db.execute('INSERT INTO users (email, name, password, teacherId, isTeacher) VALUES (?, ?, ?, ?, ?)', ["maria.karlsson@elev.ga.ntig.se", "Maria Karlsson", BCrypt::Password.create("123"), 4, 0])
+
+    db.execute('INSERT INTO questions (question) VALUES (?)', "Hur mår du?")
+    db.execute('INSERT INTO questions (question) VALUES (?)', "Vad har du gjort idag?")
+    db.execute('INSERT INTO questions (question) VALUES (?)', "Har du lärt dig något nytt idag? Isåfall vad?")
+    db.execute('INSERT INTO questions (question) VALUES (?)', "Hur utalas kex? Det finns ett rätt svar")
+    db.execute('INSERT INTO questions (question) VALUES (?)', "Hur utalas lakrits? Det finns ett rätt svar")
+>>>>>>> 7313e3b762f44dbe590e330c79665efa0eeb8f9f
 
   #   db.execute('INSERT INTO qotd (author, quote) VALUES (?,?)' ,["Bill Gates", "Today, you always know whether you are on the Internet or on your PC's hard drive. Tomorrow, you will not care and may not even know."])
   end
