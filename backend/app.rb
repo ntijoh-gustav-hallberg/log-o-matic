@@ -1,13 +1,13 @@
 require 'bcrypt'
+require 'debug'
 require 'sinatra'
 require 'time'
 require 'jwt'
-#require 'debug'
+require 'json'
 
-MY_SECRET_SIGNING_KEY = "THISISASUPERSECRET"
+MY_SECRET_SIGNING_KEY = 'your-256-bit-secret'
 
-class QotdApi < Sinatra::Base
-
+class App < Sinatra::Base
   def initialize
     super
     @db = SQLite3::Database.new('db/log-o-matic.db')
@@ -15,24 +15,26 @@ class QotdApi < Sinatra::Base
   end
 
   helpers do
+  def authenticated?
+    jwt_bearer_token = env.fetch('HTTP_AUTHORIZATION', '').slice(7..-1) # Extract Bearer token
+    return false unless jwt_bearer_token
 
-    def authenticated?
-      jwt_bearer_token = env.fetch('HTTP_AUTHORIZATION', '').slice(7..-1)
-      return false unless jwt_bearer_token
-      p "JWT bearer | #{jwt_bearer_token}"
-      begin
-        @token = JWT.decode(jwt_bearer_token, MY_SECRET_SIGNING_KEY, false)
-        @user = @db.execute("SELECT * FROM users WHERE id = ?", @token.first['id']).first
-        return !!@user
-      rescue JWT::DecodeError => ex
-        return false
-      end
+    begin
+      decoded_token = JWT.decode(jwt_bearer_token, MY_SECRET_SIGNING_KEY, true, { algorithm: 'HS256' })
+      @user = @db.execute('SELECT * FROM users WHERE id = ?', decoded_token.first['id']).first
+      !!@user # Return true if user is found
+    rescue JWT::DecodeError => e
+      puts "JWT Error: #{e.message}"
+      false
+    rescue JWT::ExpiredSignature
+      puts "JWT Error: Token has expired"
+      false
     end
+  end
 
-    def unauthorized_response
-      halt 401, { error: 'Unauthorized' }.to_json
-    end
-
+  def unauthorized_response
+    halt 401, { error: 'Unauthorized' }.to_json
+  end
   end
 
   configure do
@@ -42,13 +44,15 @@ class QotdApi < Sinatra::Base
   before do
     response.headers['Access-Control-Allow-Origin'] = '*'
     content_type :json
+    sleep 1 # simulate slow internet connection
   end
 
-  options "*" do
-    response.headers["Access-Control-Allow-Methods"] = "GET, PUT, POST, PATCH, DELETE, OPTIONS"
-    response.headers["Access-Control-Allow-Headers"] = "Authorization, Content-Type, Location, Accept, X-User-Email, X-Auth-Token"
-    response.headers["Access-Control-Allow-Origin"] = "*"
-    response.headers["Access-Control-Expose-Headers"] = "Location, Link"
+  options '*' do
+    response.headers['Access-Control-Allow-Methods'] = 'GET, PUT, POST, PATCH, DELETE, OPTIONS'
+    response.headers['Access-Control-Allow-Headers'] =
+      'Authorization, Content-Type, Location, Accept, X-User-Email, X-Auth-Token'
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Expose-Headers'] = 'Location, Link'
     200
   end
 
@@ -109,6 +113,47 @@ class QotdApi < Sinatra::Base
     user = @db.execute('INSERT INTO questions (question) VALUES (?)', user_data)
 
     true
+  get '/api/v1/posts' do
+    content_type :json
+
+    puts('Attempting to fetch backend data for Posts')
+
+    if authenticated?
+
+      puts('Succeeded in Authentification')
+      student_id = params['studentId']
+      week = params['week']
+      puts "Student ID: #{params['studentId']}, Week: #{params['week']}"
+      posts = @db.execute('SELECT * FROM posts WHERE userId = ? AND week = ?', [student_id, week])
+
+      puts "Found posts #{posts}"
+
+      result = posts.map do |post|
+        post_id = post['postId']
+
+        questions = @db.execute(
+          'SELECT questionId, question FROM questions WHERE questionId IN (SELECT questionId FROM answers WHERE postId = ?)', [post_id]
+        )
+
+        answers = @db.execute('SELECT answerId, questionId, answer FROM answers WHERE postId = ?', post_id)
+        # Fetch related comments
+        comments = @db.execute('SELECT commentId, userId, comment FROM comments WHERE postId = ?', post_id)
+
+        puts "Inputting answers: #{answers} and comments #{comments} for post id #{post_id}"
+        {
+          postId: post['postId'],
+          userId: post['userId'],
+          date: post['date'],
+          questions: questions,
+          answers: answers,
+          comments: comments
+        }
+      end
+
+      result.to_json
+    else
+      unauthorized_response
+    end
   end
 
   get '/api/v1/qotd' do
@@ -121,7 +166,7 @@ class QotdApi < Sinatra::Base
   end
 
   get '/api/v1/users/?' do
-    p "Getting all users"
+    p 'Getting all users'
     if authenticated?
       @db.execute('SELECT id, username FROM users').to_json
     else
@@ -139,13 +184,36 @@ class QotdApi < Sinatra::Base
   end
 
   post '/api/v1/users/signin' do
-    p "Signing in"
+    p 'Signing in'
     user_data = JSON.parse(request.body.read)
     user = @db.execute('SELECT * FROM users WHERE email = ?', user_data['email']).first
 
-    if user && BCrypt::Password.new(user['password']) == user_data['password']
-      token = JWT.encode({ id: user['id'], issued_at: Time.now }, MY_SECRET_SIGNING_KEY)
-      { token: token , isTeacher: user['isTeacher']}.to_json
+    if user && BCrypt::Password.new(user['encrypted_password']) == user_data['password']
+      token_payload = {
+        id: user['id'],
+        username: user['username'],
+        exp: Time.now.to_i + 3600 # Token expires in 1 hour
+      }
+  
+      token = JWT.encode(token_payload, MY_SECRET_SIGNING_KEY, 'HS256')
+      { token: token }.to_json
+    else
+      unauthorized_response
+    end
+  end
+
+  post '/api/v1/posts/comment' do
+    if authenticated?
+      comment_data = JSON.parse(request.body.read)
+      user_id = @user['userId']
+      post_id = comment_data['postId']
+      comment_text = comment_data['comment']
+  
+      @db.execute('INSERT INTO comments (userId, comment, postId) VALUES (?, ?, ?)', [user_id, comment_text, post_id])
+  
+      comment_id = @db.last_insert_row_id
+  
+      { commentId: comment_id, userId: user_id, comment: comment_text }.to_json
     else
       unauthorized_response
     end

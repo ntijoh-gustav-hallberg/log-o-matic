@@ -1,11 +1,13 @@
 source 'https://rubygems.org'
 
-gem 'webrick'
+gem 'bcrypt'
+gem 'debug'
+gem 'jwt'
 gem 'rackup'
+gem 'rerun'
 gem 'sinatra'
 gem 'sinatra-cross_origin'
 gem 'sqlite3'
-gem 'rerun'
-gem 'bcrypt'
-gem 'jwt'
+gem 'webrick'
 #gem 'debug'
+
