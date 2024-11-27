@@ -2,7 +2,7 @@ require 'bcrypt'
 require 'sinatra'
 require 'time'
 require 'jwt'
-require 'debug'
+#require 'debug'
 
 MY_SECRET_SIGNING_KEY = "THISISASUPERSECRET"
 
