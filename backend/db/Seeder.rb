@@ -47,6 +47,7 @@ class Seeder
     add_data(db)
   end
 
+
   def self.add_data(db)
     # Encrypt password using BCrypt for security
     encrypted_password = BCrypt::Password.create('studentpassword')
@@ -78,6 +79,7 @@ class Seeder
     # Insert questions
     db.execute('INSERT INTO questions (question) VALUES (?)', "Hur mår du?")
     db.execute('INSERT INTO questions (question) VALUES (?)', "Vad har du gjort idag?")
+
   
     # Insert answers for posts
     db.execute('INSERT INTO answers (questionId, postId, answer) VALUES (?, ?, ?)', [1, 1, 'Python']) # Monday
@@ -94,6 +96,11 @@ class Seeder
     # Insert comments (one teacher commenting on students' posts)
     db.execute('INSERT INTO comments (userId, comment, postId) VALUES (?, ?, ?)', [1, 'Great answers! Keep it up!', 1]) # Teacher commenting on Monday's post
     db.execute('INSERT INTO comments (userId, comment, postId) VALUES (?, ?, ?)', [1, 'Nice project idea for a mobile app!', 3]) # Teacher commenting on Wednesday's post
+
+    db.execute('INSERT INTO questions (question) VALUES (?)', "Har du lärt dig något nytt idag? Isåfall vad?")
+    db.execute('INSERT INTO questions (question) VALUES (?)', "Hur utalas kex? Det finns ett rätt svar")
+    db.execute('INSERT INTO questions (question) VALUES (?)', "Hur utalas lakrits? Det finns ett rätt svar")
+
   end
   
 end
