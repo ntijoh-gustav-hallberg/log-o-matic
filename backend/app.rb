@@ -4,8 +4,13 @@ require 'sinatra'
 require 'time'
 require 'jwt'
 require 'json'
+require 'securerandom'
 
-MY_SECRET_SIGNING_KEY = 'your-256-bit-secret'
+def generate_secret
+  SecureRandom.hex(32)
+end
+
+MY_SECRET_SIGNING_KEY = generate_secret
 
 class App < Sinatra::Base
   def initialize
@@ -17,12 +22,22 @@ class App < Sinatra::Base
   helpers do
   def authenticated?
     jwt_bearer_token = env.fetch('HTTP_AUTHORIZATION', '').slice(7..-1) # Extract Bearer token
+    puts jwt_bearer_token
     return false unless jwt_bearer_token
 
     begin
       decoded_token = JWT.decode(jwt_bearer_token, MY_SECRET_SIGNING_KEY, true, { algorithm: 'HS256' })
-      @user = @db.execute('SELECT * FROM users WHERE id = ?', decoded_token.first['id']).first
-      !!@user # Return true if user is found
+      puts "Decoded token: #{decoded_token.first}"
+      puts "User ID from token: #{decoded_token.first['id']}"
+
+      @user = @db.execute('SELECT * FROM users WHERE userId = ?', decoded_token.first['id']).first
+      if @user.nil?
+        puts "User not found for token"
+        return false
+      end
+
+      true
+      
     rescue JWT::DecodeError => e
       puts "JWT Error: #{e.message}"
       false
@@ -111,8 +126,8 @@ class App < Sinatra::Base
   post '/admin/question/add' do
     user_data = JSON.parse(request.body.read)
     user = @db.execute('INSERT INTO questions (question) VALUES (?)', user_data)
+  end
 
-    true
   get '/api/v1/posts' do
     content_type :json
 
@@ -177,7 +192,7 @@ class App < Sinatra::Base
   get '/api/v1/users/:id/?' do
     p "Getting user: #{id}"
     if authenticated?
-      @db.execute('SELECT id, username FROM users WHERE id = ? LIMIT 1', params['id']).first.to_json
+      @db.execute('SELECT id, username FROM users WHERE userId = ? LIMIT 1', params['id']).first.to_json
     else
       unauthorized_response
     end
@@ -188,9 +203,9 @@ class App < Sinatra::Base
     user_data = JSON.parse(request.body.read)
     user = @db.execute('SELECT * FROM users WHERE email = ?', user_data['email']).first
 
-    if user && BCrypt::Password.new(user['encrypted_password']) == user_data['password']
+    if user && BCrypt::Password.new(user['password']) == user_data['password']
       token_payload = {
-        id: user['id'],
+        id: user['userId'],
         username: user['username'],
         exp: Time.now.to_i + 3600 # Token expires in 1 hour
       }

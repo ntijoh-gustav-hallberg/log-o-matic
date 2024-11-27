@@ -79,6 +79,8 @@
 
 import { ref, computed, onMounted } from "vue";
 import { useRoute } from "vue-router";
+import useUserStore from '@/stores/userStore';
+
 
 onMounted(() => {
   console.log("Fetching Data");
@@ -86,9 +88,10 @@ onMounted(() => {
 })
 
 // Set initial constants and get routes from the link
+const userStore = useUserStore()
 const route = useRoute();
-const week = route.query.week || "45";
-const studentId = typeof route.query.student === 'number' ? ref(route.query.student) : ref(0);
+const week = route.query.week || "1";
+const studentId = ref(route.query.studentId ?? "0");
 
 interface Answer {
   answerId: number;
@@ -135,7 +138,7 @@ const fetchData = async (): Promise<void> => {
   loading.value = true;
   error.value = null;
   try {
-    const token = localStorage.getItem('jwt_token');
+    const token = userStore.token;
     if (!token) throw new Error("Authorization token is missing!");
     console.log('JWT Token:', token);
 
@@ -237,13 +240,12 @@ const changeDay = (direction: "previous" | "next") => {
   setCurrentDayData();
 };
 
-
 const newComment = ref<string>('');
 
 const submitComment = async (): Promise<void> => {
   if (newComment.value.trim() && currentDayData.value?.postId) {
     try {
-      const token = localStorage.getItem("jwt_token");
+      const token = userStore.token;
       if (!token) throw new Error("Authorization token is missing!");
       console.log('JWT Token:', token);
 
