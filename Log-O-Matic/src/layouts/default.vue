@@ -9,7 +9,7 @@
         <v-icon  icon="mdi-cog"/>
         Admin
       </v-btn>
-      <v-btn v-if="userStore.token" @click="router.push('/logs')">
+      <v-btn v-if="userStore.token" @click="goToLogs">
         <v-icon  icon="mdi-list-box"/>
         Logs
       </v-btn>
@@ -35,7 +35,20 @@
 
 <script lang="ts" setup>
 import router from '@/router';
+import { getISOWeek } from 'date-fns';
 import useUserStore from '@/stores/userStore';
+
+const today = new Date();
+const weekNumber = getISOWeek(today);
+
+function goToLogs(){
+  router.push({
+    path: '/logs',
+    query: {
+      week: weekNumber,
+    },
+  });
+};
 
   const userStore = useUserStore();
 
