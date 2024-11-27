@@ -135,6 +135,7 @@ const fetchData = async (): Promise<void> => {
   error.value = null;
   try {
     const token = localStorage.getItem('jwt_token');
+    if (!token) throw new Error("Authorization token is missing!");
     console.log('JWT Token:', token);
 
     const response = await fetch(apiUrl, {
@@ -190,7 +191,7 @@ const setCurrentDayData = () => {
 
     // Update reactive variables directly
     currentDayData.value = currentPost; // Set the entire object directly to trigger reactivity
-    
+
     // Map the data to questions and comments
     questions.value = currentPost.questions.map((q, index) => ({
       questionId: q.questionId,
@@ -238,10 +239,45 @@ const changeDay = (direction: "previous" | "next") => {
 
 const newComment = ref<string>('');
 
-const submitComment = (): void => {
-  if (newComment.value.trim()) {
-    console.log('Submitted Comment:', newComment.value.trim());
-    newComment.value = ''; // Clear input after submission
+const submitComment = async (): Promise<void> => {
+  if (newComment.value.trim() && currentDayData.value?.postId) {
+    try {
+      const token = localStorage.getItem("jwt_token");
+      if (!token) throw new Error("Authorization token is missing!");
+      console.log('JWT Token:', token);
+
+      const response = await fetch("http://localhost:9292/api/v1/posts/comment", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          comment: newComment.value.trim(),
+          postId: currentDayData.value.postId,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to submit comment. Status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log("Comment submitted successfully:", result);
+
+      // Update comments for the current day
+      const newCommentObj = {
+        commentId: result.commentId,
+        userId: result.userId,
+        comment: newComment.value.trim(),
+      };
+      currentDayData.value.comments.push(newCommentObj);
+
+      // Clear input field
+      newComment.value = '';
+    } catch (err) {
+      console.error("Error submitting comment:", err);
+    }
   }
 };
 

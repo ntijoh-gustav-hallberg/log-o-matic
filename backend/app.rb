@@ -15,25 +15,26 @@ class App < Sinatra::Base
   end
 
   helpers do
-    def authenticated?
-      # jwt_bearer_token = env.fetch('HTTP_AUTHORIZATION', '').slice(7..-1)
-      # return false unless jwt_bearer_token
+  def authenticated?
+    jwt_bearer_token = env.fetch('HTTP_AUTHORIZATION', '').slice(7..-1) # Extract Bearer token
+    return false unless jwt_bearer_token
 
-      # p "JWT bearer | #{jwt_bearer_token}"
-      # begin
-      #  @token = JWT.decode(jwt_bearer_token, MY_SECRET_SIGNING_KEY, false)
-      #  @user = @db.execute('SELECT * FROM users WHERE id = ?', @token.first['id']).first
-      #  !!@user
-      # rescue JWT::DecodeError => e
-      #  false
-      # end
-      true
+    begin
+      decoded_token = JWT.decode(jwt_bearer_token, MY_SECRET_SIGNING_KEY, true, { algorithm: 'HS256' })
+      @user = @db.execute('SELECT * FROM users WHERE id = ?', decoded_token.first['id']).first
+      !!@user # Return true if user is found
+    rescue JWT::DecodeError => e
+      puts "JWT Error: #{e.message}"
+      false
+    rescue JWT::ExpiredSignature
+      puts "JWT Error: Token has expired"
+      false
     end
+  end
 
-    def unauthorized_response
-      puts('Failed Response')
-      halt 401, { error: 'Unauthorized' }.to_json
-    end
+  def unauthorized_response
+    halt 401, { error: 'Unauthorized' }.to_json
+  end
   end
 
   configure do
@@ -187,9 +188,32 @@ class App < Sinatra::Base
     user_data = JSON.parse(request.body.read)
     user = @db.execute('SELECT * FROM users WHERE email = ?', user_data['email']).first
 
-    if user && BCrypt::Password.new(user['password']) == user_data['password']
-      token = JWT.encode({ id: user['id'], issued_at: Time.now }, MY_SECRET_SIGNING_KEY)
-      { token: token , isTeacher: user['isTeacher']}.to_json
+    if user && BCrypt::Password.new(user['encrypted_password']) == user_data['password']
+      token_payload = {
+        id: user['id'],
+        username: user['username'],
+        exp: Time.now.to_i + 3600 # Token expires in 1 hour
+      }
+  
+      token = JWT.encode(token_payload, MY_SECRET_SIGNING_KEY, 'HS256')
+      { token: token }.to_json
+    else
+      unauthorized_response
+    end
+  end
+
+  post '/api/v1/posts/comment' do
+    if authenticated?
+      comment_data = JSON.parse(request.body.read)
+      user_id = @user['userId']
+      post_id = comment_data['postId']
+      comment_text = comment_data['comment']
+  
+      @db.execute('INSERT INTO comments (userId, comment, postId) VALUES (?, ?, ?)', [user_id, comment_text, post_id])
+  
+      comment_id = @db.last_insert_row_id
+  
+      { commentId: comment_id, userId: user_id, comment: comment_text }.to_json
     else
       unauthorized_response
     end
